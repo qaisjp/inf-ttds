@@ -2,6 +2,12 @@ import sys
 import os.path
 import itertools
 import string
+from stemming.porter2 import stem
+from functools import lru_cache
+
+@lru_cache(maxsize=4096)
+def memoized_stem(word):
+    return stem(word)
 
 def get_file_lines(filename):
     with open(filename) as f:
@@ -19,12 +25,12 @@ def get_file_tokens(filename, filter_set=None):
             f
         )
 
-        toks = itertools.chain.from_iterable(tokLists)
+        toks = set(itertools.chain.from_iterable(tokLists))
 
         if filter_set:
             toks = filter(lambda t: t not in filter_set, toks)
 
-        return list(toks)
+        return list(map(memoized_stem, toks))
 
 def main():
     filename = sys.argv[1]
