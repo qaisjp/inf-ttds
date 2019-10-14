@@ -11,18 +11,18 @@ Based on lecture 3 and 4
 
 * You need to have Perl or Python on your machine (you still can use something else).
 * Download the following files:
-- Collection 1 --> Bible: [link][2]
-- Collection 2 --> Wikipedia abstracts: [link][3]
+    - Collection 1 --> Bible: [link][2]
+    - Collection 2 --> Wikipedia abstracts: [link][3]
 * Write code to do the following:
-- **Tokenisation**: convert text into tokens with no puncituations
-- **Case folding**: make all text into lower case
-- **Stopping**: remove English [stop words][4]
-- **Normalisation**: Porter stemmer at least. You can try other stemmers as well. You can get Porter stemmer in [Perl][5] or [Python][6], or you can use [Snowball Stemmer][7] for multiple languages.
+    - **Tokenisation**: convert text into tokens with no puncituations
+    - **Case folding**: make all text into lower case
+    - **Stopping**: remove English [stop words][4]
+    - **Normalisation**: Porter stemmer at least. You can try other stemmers as well. You can get Porter stemmer in [Perl][5] or [Python][6], or you can use [Snowball Stemmer][7] for multiple languages.
 * Print new files for collection 1 and 2 after preprocessing.
 * Discuss with your colleagues, what kind of modifications in preprocessing could be applied. For example:
-- Additional words/terms to be filtered outline
-- Special tokenisation
-- Additional normalisation to some terms
+    - Additional words/terms to be filtered outline
+    - Special tokenisation
+    - Additional normalisation to some terms
 
 ## Text Laws
 
@@ -32,10 +32,10 @@ For each of the two collections,
 * Plot the distribution of the first digit in frequences obtained and observe Beford's law. Try again while neglecting the one digit frequencies (frequencies less than 10), and check if the law still applies.
 * Plot the growth of vocabulary while you go through the collection and observe Heap's law. Try to fit the law to you graph and report the best fitting _k_ and _b_ constants.
 Advice on how to implement:
-- read text file term by term. count _n_ (the number of terms read).
-- save new terms in a hash as you go in reading the file. With each new term update the vocabulray size _v_.
-- print the values of _n_ and _v_ every while. Plot _n_ vs _v_ at the end.
-- try to fit an equation _v = k.n^b_. Report best fitting _k_ and _b_.
+    - read text file term by term. count _n_ (the number of terms read).
+    - save new terms in a hash as you go in reading the file. With each new term update the vocabulray size _v_.
+    - print the values of _n_ and _v_ every while. Plot _n_ vs _v_ at the end.
+    - try to fit an equation _v = k.n^b_. Report best fitting _k_ and _b_.
 
 ### Useful tips
 
