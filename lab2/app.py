@@ -112,6 +112,7 @@ def build_index(docmap):
 
 def main():
     filename = sys.argv[1]
+    query = parse_query_str(sys.argv[2])
     if not os.path.isfile(filename):
         print("Filename '%s' does not exist" % filename)
         return
@@ -137,6 +138,43 @@ def main():
 
     # tokens = get_file_tokens(filename, filter_set=stopwords)
     # print(len(tokens))
+    # print(query)
+
+def parse_query_str(query_str):
+    ops = ["OR", "AND"]
+    chosen_op = None
+
+    # Determine operation
+    for op in ops:
+        if op in query_str:
+            chosen_op = op
+
+            # split by op
+            parts = query_str.split(op)
+            break
+
+    if chosen_op is None:
+        parts = [query_str]
+
+    for i, s in enumerate(parts):
+        s = str.strip(s)
+
+        notted = s.startswith("NOT ")
+        if notted:
+            s = s[4:]
+
+        quoted = s.startswith("\"") and s.endswith("\"")
+        if quoted:
+            s = s[1:-1]
+
+        parts[i] = {
+            "text": s,
+            "not": notted,
+            "fullphrase": quoted,
+        }
+
+    return (chosen_op, parts)
+
 
 if __name__ == "__main__":
     main()
