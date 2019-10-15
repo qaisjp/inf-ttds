@@ -2,6 +2,7 @@ import sys
 import os.path
 import itertools
 import string
+import pickle
 from stemming.porter2 import stem
 from typing import List
 from functools import lru_cache
@@ -115,16 +116,24 @@ def main():
         print("Filename '%s' does not exist" % filename)
         return
 
-    docmap = get_file_docmap(filename)
-    stopwords = set(get_file_lines("englishST.txt"))
+    index_pickled_filename = filename + ".index"
+    if not os.path.isfile(index_pickled_filename):
+        docmap = get_file_docmap(filename)
+        stopwords = set(get_file_lines("englishST.txt"))
 
-    for doc in docmap.values():
-        doc.tokenize(stopwords)
+        for doc in docmap.values():
+            doc.tokenize(stopwords)
 
-    index = build_index(docmap)
-    # print(len(docmap.keys()))
+        index = build_index(docmap)
+
+        with open(index_pickled_filename, "wb") as f:
+            pickle.dump((docmap, index), f)
+    else:
+        with open(index_pickled_filename, "rb") as f:
+            docmap, index = pickle.load(f)
+
     # print(docmap[3936].text)
-    # print(index)
+    # print(index["pyramid"])
 
     # tokens = get_file_tokens(filename, filter_set=stopwords)
     # print(len(tokens))
