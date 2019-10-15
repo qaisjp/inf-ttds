@@ -39,6 +39,7 @@ class Doc():
         return set(tags)
 
     def tokenize(self, filter_set=[]):
+        # Combine headline and text
         text = self.headline + " " + self.text
 
         # To lower
@@ -64,14 +65,19 @@ class Doc():
     def __str__(self):
         return "Doc(num=%d, headline=%s, text=[len:%d])" % (self.num, self.headline, len(self.text))
 
-def get_file_docs(filename):
+def get_file_docmap(filename):
     with open(filename) as f:
         xml = etree.fromstring("<root>" + f.read() + "</root>")
 
-    docs = []
+    docs = {}
     for node in xml.iter("DOC"):
         d = Doc.from_xml_node(node)
-        docs.append(d)
+
+        if d.num in docs:
+            print("Clash d.num in docs, %d" % d.num)
+            sys.exit(1)
+
+        docs[d.num] = d
 
     return docs
 
@@ -80,16 +86,19 @@ def get_file_docs(filename):
     #     ts = ts.union(Doc.get_xml_node_tags(doc))
     # print(ts)
 
+def build_index(docmap):
+    pass
+
 def main():
     filename = sys.argv[1]
     if not os.path.isfile(filename):
         print("Filename '%s' does not exist" % filename)
         return
 
-    docs = get_file_docs(filename)
+    docmap = get_file_docmap(filename)
     stopwords = set(get_file_lines("englishST.txt"))
 
-    for doc in docs:
+    for doc in docmap.values():
         doc.tokenize(stopwords)
         print(doc, doc.tokens)
 
