@@ -138,7 +138,7 @@ def main():
 
     # tokens = get_file_tokens(filename, filter_set=stopwords)
     # print(len(tokens))
-    # print(query)
+    print(query)
 
 def parse_query_str(query_str):
     ops = ["OR", "AND"]
@@ -155,6 +155,7 @@ def parse_query_str(query_str):
 
     if chosen_op is None:
         parts = [query_str]
+        chosen_op = "AND"
 
     for i, s in enumerate(parts):
         s = str.strip(s)
