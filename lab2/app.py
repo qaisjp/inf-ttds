@@ -6,6 +6,7 @@ from stemming.porter2 import stem
 from typing import List
 from functools import lru_cache
 import xml.etree.ElementTree as etree
+from collections import namedtuple
 
 @lru_cache(maxsize=4096)
 def memoized_stem(word):
@@ -86,8 +87,27 @@ def get_file_docmap(filename):
     #     ts = ts.union(Doc.get_xml_node_tags(doc))
     # print(ts)
 
+IndexEntry = namedtuple("IndexEntry", ("doc", "positions"))
+
 def build_index(docmap):
-    pass
+    index = {}
+    for doc in docmap.values():
+        doctoks = {}
+
+        for idx, token in enumerate(doc.tokens):
+            if token not in doctoks:
+                doctoks[token] = []
+
+            doctoks[token].append(idx)
+
+        for token, positions in doctoks.items():
+            if token not in index:
+                index[token] = []
+
+            entry = IndexEntry(doc.num, positions)
+            index[token].append(entry)
+
+    return index
 
 def main():
     filename = sys.argv[1]
@@ -100,7 +120,11 @@ def main():
 
     for doc in docmap.values():
         doc.tokenize(stopwords)
-        print(doc, doc.tokens)
+
+    index = build_index(docmap)
+    # print(len(docmap.keys()))
+    # print(docmap[3936].text)
+    # print(index)
 
     # tokens = get_file_tokens(filename, filter_set=stopwords)
     # print(len(tokens))
