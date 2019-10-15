@@ -18,7 +18,7 @@ def get_file_lines(filename):
         return [line.rstrip() for line in f]
 
 class Doc():
-    num : int
+    num : str
     headline: str
     text : str
 
@@ -27,7 +27,7 @@ class Doc():
     @staticmethod
     def from_xml_node(node):
         d = Doc()
-        d.num = int(node.find("DOCNO").text)
+        d.num = node.find("DOCNO").text
         d.headline = node.find("HEADLINE").text.strip()
         d.text = node.find("TEXT").text.strip()
         return d
