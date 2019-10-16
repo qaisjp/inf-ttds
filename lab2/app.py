@@ -304,12 +304,14 @@ def search(docmap, index, query):
     # If inclusions is empty, but exclusions contains stuff
     # we want to set inclusions to entire document set
     if len(inclusions) == 0 and len(exclusions) > 0:
-        # This will not work since each value in the index is a list of entries
-        # inclusions = map(lambda doc: entry.doc, index.values())
-        inclusions = map(lambda doc: doc.num, docmap.values())
+        inclusions = map(
+            lambda entries: [entry.doc for entry in entries], index.values())
     else:
-        inclusions = itertools.chain.from_iterable(inclusions.values())
+        # Since the entire document set is a list, we need to normalise
+        # our original inclusion map to be a list, to make code common
+        inclusions = inclusions.values()
 
+    inclusions = itertools.chain.from_iterable(inclusions)
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
     return list(set(inclusions) - set(exclusions))
