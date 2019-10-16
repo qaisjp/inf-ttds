@@ -177,11 +177,17 @@ def parse_query_str(query_str):
     # Determine operation
     for op in ops:
         if op in query_str:
+            if chosen_op is not None:
+                print("Multiple ops found in query:", query_str)
+                sys.exit(1)
+
             chosen_op = op
 
             # split by op
             parts = query_str.split(op)
-            break
+            if len(parts) != 2:
+                print("Invalid query. Should be one OP in middle of query:", query_str)
+                sys.exit(1)
 
     if chosen_op is None:
         parts = [query_str]
