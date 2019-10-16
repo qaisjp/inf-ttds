@@ -1,3 +1,4 @@
+import argparse
 import sys
 import os.path
 import itertools
@@ -8,6 +9,7 @@ import xml.etree.ElementTree as etree
 from stemming.porter2 import stem
 from typing import List
 from functools import lru_cache
+from pprint import pprint
 from collections import namedtuple
 
 @lru_cache(maxsize=4096)
@@ -121,9 +123,29 @@ def read_query_file(filename):
             )
         return queries
 
+def read_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sample_filename", type=str,
+                        help='the filename of the sample')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('query_str', nargs='?', type=str,
+                        help='query string to use')
+    group.add_argument('--queries-from', dest='queries_filename', type=str,
+                        help='file to read queries from')
+
+    return parser.parse_args()
+
 def main():
-    filename = sys.argv[1]
-    query = parse_query_str(sys.argv[2])
+    args = read_args()
+    if args.queries_filename:
+        queries = list(map(
+            lambda q: (q[0], parse_query_str(q[1])),
+            read_query_file(args.queries_filename)
+        ))
+    else:
+        queries = [("1", parse_query_str(args.query_str))]
+
+    filename = args.sample_filename
     if not os.path.isfile(filename):
         print("Filename '%s' does not exist" % filename)
         return
@@ -146,7 +168,7 @@ def main():
 
     # print(docmap[3936].text)
     # print(index["pyramid"])
-    print(query)
+    pprint(queries)
 
 def parse_query_str(query_str):
     ops = ["OR", "AND"]
