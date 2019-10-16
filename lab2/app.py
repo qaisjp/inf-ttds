@@ -320,7 +320,8 @@ def search(docmap, index, query):
 
     if op == "OR":
         assert(len(exclusions) == 0)
-        return inclusions
+        inclusions = itertools.chain.from_iterable(inclusions.values())
+        return sorted(inclusions)
     else:
         pass # Operation is AND
 
