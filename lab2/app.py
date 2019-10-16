@@ -111,6 +111,16 @@ def build_index(docmap):
 
     return index
 
+def read_query_file(filename):
+    with open(filename) as f:
+        queries = []
+        for line in f:
+            key, query = line.split(" ", 1)
+            queries.append(
+                (key.rstrip(":"), query)
+            )
+        return queries
+
 def main():
     filename = sys.argv[1]
     query = parse_query_str(sys.argv[2])
