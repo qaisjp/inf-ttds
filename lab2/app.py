@@ -177,12 +177,13 @@ def parse_query_str(query_str):
         proxim_match = re_proximity.match(s)
         if proxim_match:
             distance, text_a, text_b = proxim_match.groups()
+            distance = int(distance)
             s = (text_a, text_b) # TODO: preprocess `text_a` and `text_b`
         else:
             distance = None
             # TODO: preprocess `s`
 
-        parts[i] = QueryPart(s, negated, quoted, int(distance))
+        parts[i] = QueryPart(s, negated, quoted, distance)
 
     return (chosen_op, parts)
 
