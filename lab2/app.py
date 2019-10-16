@@ -246,8 +246,6 @@ def search(docmap, index, query):
         if qpart.text in index:
             entry = index[qpart.text]
             include = True
-        else:
-            continue
 
         if qpart.negated:
             include = not include
