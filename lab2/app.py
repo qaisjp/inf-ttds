@@ -329,19 +329,24 @@ def search(docmap, index, query):
     if len(inclusions) == 0 and len(exclusions) > 0:
         inclusions = map(
             lambda entries: [entry.doc for entry in entries], index.values())
+        inclusions = itertools.chain.from_iterable(inclusions)
     else:
         # Since the entire document set is a list, we need to normalise
         # our original inclusion map to be a list, to make code common
         inclusions = inclusions.values()
 
-        if len(inclusions) > 1:
-            # TODO: make sure inclusions contains common docs only
-            print("inclusions",inclusions)
+        # common docs
+        new_inclusions = None
+        for ds in inclusions:
+            if new_inclusions is None:
+                new_inclusions = set(ds)
+            else:
+                new_inclusions = new_inclusions & set(ds)
+        inclusions = new_inclusions
 
-    inclusions = itertools.chain.from_iterable(inclusions)
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
-    return list(set(inclusions) - set(exclusions))
+    return sorted(list(set(inclusions) - set(exclusions)))
 
 def main():
     stopwords = set(get_file_lines(STOPWORDS_FILE))
