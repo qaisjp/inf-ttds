@@ -159,7 +159,7 @@ def parse_query_str(query_str):
 
     if chosen_op is None:
         parts = [query_str]
-        chosen_op = "OR"
+        chosen_op = "AND"
 
     re_proximity = re.compile("#(\d+)\((.*?), (.*?)\)")
 
@@ -235,12 +235,14 @@ class QueryPart():
 def search(docmap, index, query):
     op, parts = query
 
-    entries = {}
+    inclusions = {}
+    exclusions = {}
+
     fullparts = [] # TODO
     nextindex = index
 
     for i, qpart in enumerate(parts):
-        include = False
+        found = False
         if qpart.phrasal:
             # full text search
             fullparts.append(qpart)
@@ -255,7 +257,6 @@ def search(docmap, index, query):
 
                 # Pluck out position lists where docs match
                 # ( doc_num, term_a_positions, term_b_positions )
-                # TODO: does this work with NOT???
                 matching_docs = [
                     (doc_a, term_a_positions, term_b_positions)
                     for doc_a, term_a_positions in docs_a
@@ -279,21 +280,39 @@ def search(docmap, index, query):
                             nearby_docs.append(doc)
                             break
 
-                entries[qpart] = nearby_docs
+                entries = nearby_docs
+                found = True
 
         if qpart.text in index:
-            entry = index[qpart.text]
-            include = True
+            entries = [index[qpart.text]]
+            found = True
 
         if qpart.negated:
-            include = not include
+            found = not found
 
-        if include:
-            entries[qpart] = [entry]
+        if found:
+            inclusions[qpart] = entries
+        else:
+            exclusions[qpart] = entries
 
     if op == "OR":
-        # include docs with
-        return entries
+        assert(len(exclusions) == 0)
+        return inclusions
+    else:
+        pass # Operation is AND
+
+    # If inclusions is empty, but exclusions contains stuff
+    # we want to set inclusions to entire document set
+    if len(inclusions) == 0 and len(exclusions) > 0:
+        # This will not work since each value in the index is a list of entries
+        # inclusions = map(lambda doc: entry.doc, index.values())
+        inclusions = map(lambda doc: doc.num, docmap.values())
+    else:
+        inclusions = itertools.chain.from_iterable(inclusions.values())
+
+    exclusions = itertools.chain.from_iterable(exclusions.values())
+
+    return list(set(inclusions) - set(exclusions))
 
 def main():
     args = read_args()
