@@ -253,15 +253,15 @@ def search(docmap, index, query):
 
             # Do both these terms appear the entire sample?
             if term_a in index and term_b in index:
-                docs_a = index[term_a]
-                docs_b = index[term_b]
+                entries_a = index[term_a]
+                entries_b = index[term_b]
 
                 # Pluck out position lists where docs match
                 # ( doc_num, term_a_positions, term_b_positions )
                 matching_docs = [
                     (doc_a, term_a_positions, term_b_positions)
-                    for doc_a, term_a_positions in docs_a
-                    for doc_b, term_b_positions in docs_b
+                    for doc_a, term_a_positions in entries_a
+                    for doc_b, term_b_positions in entries_b
                     if doc_a == doc_b
                 ]
 
@@ -281,21 +281,22 @@ def search(docmap, index, query):
                             nearby_docs.append(doc)
                             break
 
-                entries = nearby_docs
+                docs = nearby_docs
                 found = True
         elif qpart.text in index:
-            entries = [index[qpart.text]]
+            docs = map(lambda entry: entry.doc, index[qpart.text])
             found = True
         else:
+            print("Term '%s' not found" % qpart.text)
             continue
 
         if qpart.negated:
             found = not found
 
         if found:
-            inclusions[qpart] = entries
+            inclusions[qpart] = docs
         else:
-            exclusions[qpart] = entries
+            exclusions[qpart] = docs
 
     if op == "OR":
         assert(len(exclusions) == 0)
