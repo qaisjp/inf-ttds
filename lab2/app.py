@@ -20,6 +20,29 @@ def get_file_lines(filename):
     with open(filename) as f:
         return [line.rstrip() for line in f]
 
+def tokenize(text, filter_set=[]):
+    # To lower
+    toks = text.lower()
+
+    # Strip punctuation
+    #
+    # When doing a search for `#1(san, francisco)`,
+    # a doc containing "San Francisco-based" was missing
+    # so I decided to put spaces in place of punctuation instead of ""
+    spaces = len(string.punctuation) * " "
+    toks = toks.translate(str.maketrans(string.punctuation, spaces))
+
+    # Actually be list of words
+    toks = toks.split()
+
+    # Filter out certain toks
+    toks = filter(lambda t: t not in filter_set, toks)
+
+    # stemmed tokens
+    toks = map(memoized_stem, toks)
+
+    return list(toks)
+
 class Doc():
     num : str
     headline: str
@@ -47,25 +70,8 @@ class Doc():
         # Combine headline and text
         text = self.headline + " " + self.text
 
-        # To lower
-        toks = text.lower()
-
-        # Strip punctuation
-        #
-        # When doing a search for `#1(san, francisco)`,
-        # a doc containing "San Francisco-based" was missing
-        # so I decided to put spaces in place of punctuation instead of ""
-        spaces = len(string.punctuation) * " "
-        toks = toks.translate(str.maketrans(string.punctuation, spaces))
-
-        # Actually be list of words
-        toks = toks.split()
-
-        # Filter out certain toks
-        toks = filter(lambda t: t not in filter_set, toks)
-
-        # stemmed tokens
-        toks = map(memoized_stem, toks)
+        # tokenize
+        toks = tokenize(text, filter_set)
 
         # save it
         self.tokens = list(toks)
