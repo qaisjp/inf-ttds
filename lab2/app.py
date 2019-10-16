@@ -156,7 +156,7 @@ def parse_query_str(query_str):
 
     if chosen_op is None:
         parts = [query_str]
-        chosen_op = "AND"
+        chosen_op = "OR"
 
     re_proximity = re.compile("#(\d+)\((.*?), (.*?)\)")
 
@@ -187,6 +187,38 @@ def parse_query_str(query_str):
         }
 
     return (chosen_op, parts)
+
+def search(docmap, index, query):
+    op, parts = query
+
+    entries = []
+    fullparts = [] # TODO
+    nextindex = index
+
+    for i, qpart in enumerate(parts):
+        include = False
+        if qpart["fullphrase"]:
+            # full text search
+            fullparts.append(qpart)
+            continue
+        elif qpart["distance"]:
+            pass # TODO
+
+        if qpart["text"] in index:
+            entry = index[qpart["text"]]
+            include = True
+        else:
+            continue
+
+        if qpart["not"]:
+            include = not include
+
+        if include:
+            entries.append(entry)
+
+    if op == "OR":
+        # include docs with
+        return entries
 
 def main():
     args = read_args()
@@ -221,7 +253,11 @@ def main():
 
     # print(docmap[3936].text)
     # print(index["pyramid"])
-    pprint(queries)
+    for pair in queries:
+        key, q = pair
+        pprint(pair)
+        pprint(search(docmap, index, q))
+        print()
 
 if __name__ == "__main__":
     main()
