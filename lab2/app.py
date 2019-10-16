@@ -12,6 +12,8 @@ from functools import lru_cache
 from pprint import pprint
 from collections import namedtuple
 
+STOPWORDS_FILE = "englishST.txt"
+
 @lru_cache(maxsize=4096)
 def memoized_stem(word):
     return stem(word)
@@ -42,6 +44,13 @@ def tokenize(text, filter_set=[]):
     toks = map(memoized_stem, toks)
 
     return list(toks)
+
+def preprocess_word(s, filter_set):
+    toks = tokenize(s, filter_set)
+    if len(toks) != 1:
+        print("Odd s '{}', got toks: {}".format(s, toks))
+        sys.exit(1)
+    return toks[0]
 
 class Doc():
     num : str
@@ -144,7 +153,7 @@ def read_args():
 
     return parser.parse_args()
 
-def parse_query_str(query_str):
+def parse_query_str(query_str, stopwords):
     ops = ["OR", "AND"]
     chosen_op = None
 
@@ -184,10 +193,15 @@ def parse_query_str(query_str):
         if proxim_match:
             distance, text_a, text_b = proxim_match.groups()
             distance = int(distance)
-            s = (text_a, text_b) # TODO: preprocess `text_a` and `text_b`
+
+            # preprocess them
+            text_a = preprocess_word(text_a, stopwords)
+            text_b = preprocess_word(text_b, stopwords)
+
+            s = (text_a, text_b)
         else:
             distance = None
-            # TODO: preprocess `s`
+            s = preprocess_word(s, stopwords)
 
         parts[i] = QueryPart(s, negated, quoted, distance)
 
@@ -330,14 +344,16 @@ def search(docmap, index, query):
     return list(set(inclusions) - set(exclusions))
 
 def main():
+    stopwords = set(get_file_lines(STOPWORDS_FILE))
+
     args = read_args()
     if args.queries_filename:
         queries = list(map(
-            lambda q: (q[0], parse_query_str(q[1])),
+            lambda q: (q[0], parse_query_str(q[1], stopwords)),
             read_query_file(args.queries_filename)
         ))
     else:
-        queries = [("1", parse_query_str(args.query_str))]
+        queries = [("1", parse_query_str(args.query_str, stopwords))]
 
     filename = args.sample_filename
     if not os.path.isfile(filename):
@@ -347,7 +363,6 @@ def main():
     index_pickled_filename = filename + ".index"
     if not os.path.isfile(index_pickled_filename):
         docmap = get_file_docmap(filename)
-        stopwords = set(get_file_lines("englishST.txt"))
 
         for doc in docmap.values():
             doc.tokenize(stopwords)
