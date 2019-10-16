@@ -186,21 +186,32 @@ def parse_query_str(query_str, stopwords):
             s = s[4:]
 
         quoted = s.startswith("\"") and s.endswith("\"")
+        distance = None
         if quoted:
             s = s[1:-1]
+            s = s.split()
+            if len(s) == 1:
+                s = s[0]
+                quoted = False
+            elif len(s) == 2:
+                s = (s[0], s[1])
+            else:
+                print("Quoted query should have 1 or 2 words")
+                sys.exit(1)
+        else:
+            proxim_match = re_proximity.match(s)
+            if proxim_match:
+                distance, text_a, text_b = proxim_match.groups()
+                distance = int(distance)
+                s = (text_a, text_b)
 
-        proxim_match = re_proximity.match(s)
-        if proxim_match:
-            distance, text_a, text_b = proxim_match.groups()
-            distance = int(distance)
-
+        if isinstance(s, tuple):
             # preprocess them
+            text_a, text_b = s
             text_a = preprocess_word(text_a, stopwords)
             text_b = preprocess_word(text_b, stopwords)
-
             s = (text_a, text_b)
         else:
-            distance = None
             s = preprocess_word(s, stopwords)
 
         parts[i] = QueryPart(s, negated, quoted, distance)
@@ -242,7 +253,7 @@ class QueryPart():
             s += "NOT "
 
         if self.phrasal:
-            s += "\"" + self.text + "\""
+            s += "\"" + " ".join(self.text) + "\""
         elif self.distance is not None:
             s += "#" + str(self.distance) + "(" + self.text[0] + ", " + self.text[1] + ")"
         else:
@@ -264,11 +275,7 @@ def search(docmap, index, query):
 
     for i, qpart in enumerate(parts):
         found = False
-        if qpart.phrasal:
-            # full text search
-            fullparts.append(qpart)
-            continue
-        elif qpart.distance is not None:
+        if qpart.phrasal or (qpart.distance is not None):
             term_a, term_b = qpart.text
 
             # Do both these terms appear the entire sample?
@@ -297,9 +304,14 @@ def search(docmap, index, query):
                         # We don't use a list comprehension here
                         # so that we can quickly short-circuit once
                         # we have confirmed that we're near
-                        if abs(pos_a - pos_b) <= qpart.distance:
-                            nearby_docs.append(doc)
-                            break
+                        if qpart.phrasal:
+                            if (pos_b - pos_a) == 1:
+                                nearby_docs.append(doc)
+                                break
+                        else:
+                            if abs(pos_a - pos_b) <= qpart.distance:
+                                nearby_docs.append(doc)
+                                break
 
                 docs = nearby_docs
                 found = True
