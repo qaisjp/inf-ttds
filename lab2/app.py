@@ -283,10 +283,11 @@ def search(docmap, index, query):
 
                 entries = nearby_docs
                 found = True
-
-        if qpart.text in index:
+        elif qpart.text in index:
             entries = [index[qpart.text]]
             found = True
+        else:
+            continue
 
         if qpart.negated:
             found = not found
@@ -312,7 +313,9 @@ def search(docmap, index, query):
         # our original inclusion map to be a list, to make code common
         inclusions = inclusions.values()
 
-        # TODO: make sure inclusions contains common docs only
+        if len(inclusions) > 1:
+            # TODO: make sure inclusions contains common docs only
+            print("inclusions",inclusions)
 
     inclusions = itertools.chain.from_iterable(inclusions)
     exclusions = itertools.chain.from_iterable(exclusions.values())
