@@ -176,7 +176,7 @@ def parse_query_str(query_str, stopwords):
         parts = [query_str]
         chosen_op = "AND"
 
-    re_proximity = re.compile("#(\d+)\((.*?), (.*?)\)")
+    re_proximity = re.compile("^#(\d+)\((.*?), (.*?)\)$")
 
     for i, s in enumerate(parts):
         s = str.strip(s)
