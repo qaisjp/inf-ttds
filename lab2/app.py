@@ -174,12 +174,12 @@ def parse_query_str(query_str):
         proxim_match = re_proximity.match(s)
         if proxim_match:
             distance, text_a, text_b = proxim_match.groups()
-            s = {text_a, text_b} # TODO: preprocess `text_a` and `text_b`
+            s = (text_a, text_b) # TODO: preprocess `text_a` and `text_b`
         else:
             distance = None
             # TODO: preprocess `s`
 
-        parts[i] = QueryPart(s, negated, quoted, distance)
+        parts[i] = QueryPart(s, negated, quoted, int(distance))
 
     return (chosen_op, parts)
 
@@ -190,14 +190,16 @@ class QueryPart():
     distance: int
 
     def __init__(self, text, negated, phrasal, distance):
-        if phrasal is not None and distance is not None:
-            print("Phrasal and distance are mutually exclusive fields: " + text)
-            sys.exit(1)
-
         self.text = text
         self.negated = negated
         self.phrasal = phrasal
         self.distance = distance
+
+        if phrasal and distance is not None:
+            print("Phrasal and distance are mutually exclusive fields:", self)
+            sys.exit(1)
+        elif distance == 0:
+            print("Invalid distance 0:", self)
 
     def __members(self):
         return (self.text, self.negated, self.phrasal, self.distance)
@@ -217,7 +219,7 @@ class QueryPart():
 
         if self.phrasal:
             s += "\"" + self.text + "\""
-        elif self.distance:
+        elif self.distance is not None:
             s += "#" + str(self.distance) + "(" + self.text[0] + ", " + self.text[1] + ")"
         else:
             s += self.text
@@ -241,7 +243,40 @@ def search(docmap, index, query):
             fullparts.append(qpart)
             continue
         elif qpart.distance is not None:
-            pass # TODO
+            term_a, term_b = qpart.text
+
+            # Do both these terms appear the entire sample?
+            if term_a in index and term_b in index:
+                docs_a = index[term_a]
+                docs_b = index[term_b]
+
+                # Pluck out position lists where docs match
+                # ( doc_num, term_a_positions, term_b_positions )
+                # TODO: does this work with NOT???
+                matching_docs = [
+                    (doc_a, term_a_positions, term_b_positions)
+                    for doc_a, term_a_positions in docs_a
+                    for doc_b, term_b_positions in docs_b
+                    if doc_a == doc_b
+                ]
+
+                nearby_docs = []
+                for doc, positions_a, positions_b in matching_docs:
+                    doc_pos_pairs = [
+                        (pos_a, pos_b)
+                        for pos_a in positions_a
+                        for pos_b in positions_b
+                    ]
+
+                    for pos_a, pos_b in doc_pos_pairs:
+                        # We don't use a list comprehension here
+                        # so that we can quickly short-circuit once
+                        # we have confirmed that we're near
+                        if abs(pos_a - pos_b) <= qpart.distance:
+                            nearby_docs.append(doc)
+                            break
+
+                entries[qpart] = nearby_docs
 
         if qpart.text in index:
             entry = index[qpart.text]
@@ -251,7 +286,7 @@ def search(docmap, index, query):
             include = not include
 
         if include:
-            entries[qpart] = entry
+            entries[qpart] = [entry]
 
     if op == "OR":
         # include docs with
