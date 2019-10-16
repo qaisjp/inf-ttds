@@ -3,10 +3,11 @@ import os.path
 import itertools
 import string
 import pickle
+import re
+import xml.etree.ElementTree as etree
 from stemming.porter2 import stem
 from typing import List
 from functools import lru_cache
-import xml.etree.ElementTree as etree
 from collections import namedtuple
 
 @lru_cache(maxsize=4096)
@@ -135,9 +136,6 @@ def main():
 
     # print(docmap[3936].text)
     # print(index["pyramid"])
-
-    # tokens = get_file_tokens(filename, filter_set=stopwords)
-    # print(len(tokens))
     print(query)
 
 def parse_query_str(query_str):
@@ -157,6 +155,8 @@ def parse_query_str(query_str):
         parts = [query_str]
         chosen_op = "AND"
 
+    re_proximity = re.compile("#(\d+)\((.*?), (.*?)\)")
+
     for i, s in enumerate(parts):
         s = str.strip(s)
 
@@ -168,10 +168,18 @@ def parse_query_str(query_str):
         if quoted:
             s = s[1:-1]
 
+        proxim_match = re_proximity.match(s)
+        if proxim_match:
+            distance, text_a, text_b = proxim_match.groups()
+            s = {text_a, text_b}
+        else:
+            distance = None
+
         parts[i] = {
             "text": s,
             "not": notted,
             "fullphrase": quoted,
+            "distance": distance,
         }
 
     return (chosen_op, parts)
