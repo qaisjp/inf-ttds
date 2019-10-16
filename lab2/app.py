@@ -163,8 +163,8 @@ def parse_query_str(query_str):
     for i, s in enumerate(parts):
         s = str.strip(s)
 
-        notted = s.startswith("NOT ")
-        if notted:
+        negated = s.startswith("NOT ")
+        if negated:
             s = s[4:]
 
         quoted = s.startswith("\"") and s.endswith("\"")
@@ -179,42 +179,81 @@ def parse_query_str(query_str):
             distance = None
             # TODO: preprocess `s`
 
-        parts[i] = {
-            "text": s,
-            "not": notted,
-            "fullphrase": quoted,
-            "distance": distance,
-        }
+        parts[i] = QueryPart(s, negated, quoted, distance)
 
     return (chosen_op, parts)
+
+class QueryPart():
+    text: str
+    negated: bool
+    phrasal: bool
+    distance: int
+
+    def __init__(self, text, negated, phrasal, distance):
+        if phrasal is not None and distance is not None:
+            print("Phrasal and distance are mutually exclusive fields: " + text)
+            sys.exit(1)
+
+        self.text = text
+        self.negated = negated
+        self.phrasal = phrasal
+        self.distance = distance
+
+    def __members(self):
+        return (self.text, self.negated, self.phrasal, self.distance)
+
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.__members() == other.__members()
+        return False
+
+    def __hash__(self):
+        return hash(self.__members())
+
+    def __str__(self):
+        s = "QueryPart("
+        if self.negated:
+            s += "NOT "
+
+        if self.phrasal:
+            s += "\"" + self.text + "\""
+        elif self.distance:
+            s += "#" + str(self.distance) + "(" + self.text[0] + ", " + self.text[1] + ")"
+        else:
+            s += self.text
+
+        return s + ")"
+
+    def __repr__(self):
+        return self.__str__()
 
 def search(docmap, index, query):
     op, parts = query
 
-    entries = []
+    entries = {}
     fullparts = [] # TODO
     nextindex = index
 
     for i, qpart in enumerate(parts):
         include = False
-        if qpart["fullphrase"]:
+        if qpart.phrasal:
             # full text search
             fullparts.append(qpart)
             continue
-        elif qpart["distance"]:
+        elif qpart.distance is not None:
             pass # TODO
 
-        if qpart["text"] in index:
-            entry = index[qpart["text"]]
+        if qpart.text in index:
+            entry = index[qpart.text]
             include = True
         else:
             continue
 
-        if qpart["not"]:
+        if qpart.negated:
             include = not include
 
         if include:
-            entries.append(entry)
+            entries[qpart] = entry
 
     if op == "OR":
         # include docs with
