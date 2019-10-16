@@ -135,41 +135,6 @@ def read_args():
 
     return parser.parse_args()
 
-def main():
-    args = read_args()
-    if args.queries_filename:
-        queries = list(map(
-            lambda q: (q[0], parse_query_str(q[1])),
-            read_query_file(args.queries_filename)
-        ))
-    else:
-        queries = [("1", parse_query_str(args.query_str))]
-
-    filename = args.sample_filename
-    if not os.path.isfile(filename):
-        print("Filename '%s' does not exist" % filename)
-        return
-
-    index_pickled_filename = filename + ".index"
-    if not os.path.isfile(index_pickled_filename):
-        docmap = get_file_docmap(filename)
-        stopwords = set(get_file_lines("englishST.txt"))
-
-        for doc in docmap.values():
-            doc.tokenize(stopwords)
-
-        index = build_index(docmap)
-
-        with open(index_pickled_filename, "wb") as f:
-            pickle.dump((docmap, index), f)
-    else:
-        with open(index_pickled_filename, "rb") as f:
-            docmap, index = pickle.load(f)
-
-    # print(docmap[3936].text)
-    # print(index["pyramid"])
-    pprint(queries)
-
 def parse_query_str(query_str):
     ops = ["OR", "AND"]
     chosen_op = None
@@ -223,6 +188,40 @@ def parse_query_str(query_str):
 
     return (chosen_op, parts)
 
+def main():
+    args = read_args()
+    if args.queries_filename:
+        queries = list(map(
+            lambda q: (q[0], parse_query_str(q[1])),
+            read_query_file(args.queries_filename)
+        ))
+    else:
+        queries = [("1", parse_query_str(args.query_str))]
+
+    filename = args.sample_filename
+    if not os.path.isfile(filename):
+        print("Filename '%s' does not exist" % filename)
+        return
+
+    index_pickled_filename = filename + ".index"
+    if not os.path.isfile(index_pickled_filename):
+        docmap = get_file_docmap(filename)
+        stopwords = set(get_file_lines("englishST.txt"))
+
+        for doc in docmap.values():
+            doc.tokenize(stopwords)
+
+        index = build_index(docmap)
+
+        with open(index_pickled_filename, "wb") as f:
+            pickle.dump((docmap, index), f)
+    else:
+        with open(index_pickled_filename, "rb") as f:
+            docmap, index = pickle.load(f)
+
+    # print(docmap[3936].text)
+    # print(index["pyramid"])
+    pprint(queries)
 
 if __name__ == "__main__":
     main()
