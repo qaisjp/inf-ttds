@@ -333,7 +333,7 @@ def search(docmap, index, query):
     if op == "OR":
         assert(len(exclusions) == 0)
         inclusions = itertools.chain.from_iterable(inclusions.values())
-        return sorted(inclusions)
+        return sorted(set(inclusions))
     else:
         pass # Operation is AND
 
@@ -359,7 +359,7 @@ def search(docmap, index, query):
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
-    return sorted(list(set(inclusions) - set(exclusions)))
+    return sorted(set(inclusions) - set(exclusions))
 
 def main():
     stopwords = set(get_file_lines(STOPWORDS_FILE))
