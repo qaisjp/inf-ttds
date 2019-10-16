@@ -51,9 +51,12 @@ class Doc():
         toks = text.lower()
 
         # Strip punctuation
-        toks = toks.translate(
-            str.maketrans('', '', string.punctuation)
-        )
+        #
+        # When doing a search for `#1(san, francisco)`,
+        # a doc containing "San Francisco-based" was missing
+        # so I decided to put spaces in place of punctuation instead of ""
+        spaces = len(string.punctuation) * " "
+        toks = toks.translate(str.maketrans(string.punctuation, spaces))
 
         # Actually be list of words
         toks = toks.split()
