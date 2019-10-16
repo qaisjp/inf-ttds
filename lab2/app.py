@@ -311,6 +311,8 @@ def search(docmap, index, query):
         # our original inclusion map to be a list, to make code common
         inclusions = inclusions.values()
 
+        # TODO: make sure inclusions contains common docs only
+
     inclusions = itertools.chain.from_iterable(inclusions)
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
