@@ -386,6 +386,7 @@ def main():
 
     index_pickled_filename = filename + ".index"
     if not os.path.isfile(index_pickled_filename):
+        print("Building a fresh index...")
         docmap = get_file_docmap(filename)
 
         for doc in docmap.values():
@@ -394,8 +395,12 @@ def main():
         index = build_index(docmap)
 
         with open(index_pickled_filename, "wb") as f:
+            print("Index built, saving to", index_pickled_filename, end="...")
             pickle.dump((docmap, index), f)
+            print("done!")
     else:
+        print("Reading index from", index_pickled_filename)
+        print()
         with open(index_pickled_filename, "rb") as f:
             docmap, index = pickle.load(f)
 
