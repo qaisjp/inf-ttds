@@ -397,8 +397,11 @@ def main():
     # print(index["pyramid"])
     for pair in queries:
         key, q = pair
+        results = search(docmap, index, q)
+        print(len(results), "documents, query: ", end="")
         pprint(pair)
-        pprint(search(docmap, index, q))
+        pprint(results)
+        print()
         print()
 
 if __name__ == "__main__":
