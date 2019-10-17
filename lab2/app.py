@@ -173,9 +173,10 @@ def parse_query_str(query_str, stopwords):
             chosen_op = op
 
             # split by op
-            parts = query_str.split(op)
+            parts = query_str.split(" " + op + " ")
             if len(parts) != 2:
                 print("Invalid query. Should be one OP in middle of query:", query_str)
+                print("Got", parts)
                 sys.exit(1)
 
     if chosen_op is None:
