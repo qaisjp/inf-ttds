@@ -18,6 +18,12 @@ STOPWORDS_FILE = "englishST.txt"
 def memoized_stem(word):
     return stem(word)
 
+def safe_int(x):
+    try:
+        return int(x)
+    except ValueError:
+        return x
+
 def get_file_lines(filename):
     with open(filename) as f:
         return [line.rstrip() for line in f]
@@ -333,7 +339,7 @@ def search(docmap, index, query):
     if op == "OR":
         assert(len(exclusions) == 0)
         inclusions = itertools.chain.from_iterable(inclusions.values())
-        return sorted(set(inclusions))
+        return sorted(set(inclusions), key=safe_int)
     else:
         pass # Operation is AND
 
@@ -359,7 +365,7 @@ def search(docmap, index, query):
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
-    return sorted(set(inclusions) - set(exclusions))
+    return sorted(set(inclusions) - set(exclusions), key=safe_int)
 
 def main():
     stopwords = set(get_file_lines(STOPWORDS_FILE))
