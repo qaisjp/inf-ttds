@@ -47,7 +47,7 @@ class Doc():
         self.tokens = list(toks)
 
     def __str__(self):
-        return "Doc(num=%d, headline=%s, text=[len:%d])" % (self.num, self.headline, len(self.text))
+        return "Doc(num=%s, headline=%s, text=[len:%d])" % (self.num, self.headline, len(self.text))
 
 def get_file_docmap(filename):
     with open(filename) as f:
