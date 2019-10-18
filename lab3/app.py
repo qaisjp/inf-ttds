@@ -80,6 +80,8 @@ def read_args():
     group.add_argument('--queries-from', dest='queries_filename', type=str,
                         help='file to read queries from')
 
+    parser.add_argument("--print-doc", dest="print_doc", type=str, help="doc to print")
+
     return parser.parse_args()
 
 def search(docmap, index, query):
@@ -215,6 +217,12 @@ def main():
         print()
         with open(index_pickled_filename, "rb") as f:
             docmap, index = pickle.load(f)
+
+    if args.print_doc is not None:
+        doc = docmap[args.print_doc]
+        print(doc)
+        print(doc.tokens)
+        return
 
     # print(docmap[3936].text)
     # print(index["pyramid"])
