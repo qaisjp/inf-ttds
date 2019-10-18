@@ -35,8 +35,6 @@ def search(docmap, index, query):
     inclusions = {}
     exclusions = {}
 
-    nextindex = index
-
     for i, qpart in enumerate(parts):
         found = False
         if qpart.phrasal or (qpart.distance is not None):
