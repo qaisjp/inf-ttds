@@ -90,7 +90,6 @@ def search(docmap, index, query):
     inclusions = {}
     exclusions = {}
 
-    fullparts = [] # TODO
     nextindex = index
 
     for i, qpart in enumerate(parts):
