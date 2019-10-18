@@ -1,6 +1,8 @@
 import string
+import xml.etree.ElementTree as etree
 
 from collections import namedtuple
+from doc import Doc
 from functools import lru_cache
 from stemming.porter2 import stem
 
@@ -52,3 +54,24 @@ def tokenize(text, filter_set=[]):
     toks = map(memoized_stem, toks)
 
     return list(toks)
+
+def get_file_docmap(filename):
+    with open(filename) as f:
+        xml = etree.fromstring("<root>" + f.read() + "</root>")
+
+    docs = {}
+    for node in xml.iter("DOC"):
+        d = Doc.from_xml_node(node)
+
+        if d.num in docs:
+            print("Clash d.num in docs, %d" % d.num)
+            sys.exit(1)
+
+        docs[d.num] = d
+
+    return docs
+
+    # ts = set()
+    # for doc in xml.iter("DOC"):
+    #     ts = ts.union(Doc.get_xml_node_tags(doc))
+    # print(ts)
