@@ -2,61 +2,16 @@ import argparse
 import sys
 import os.path
 import itertools
-import string
 import pickle
-import re
 import xml.etree.ElementTree as etree
-from stemming.porter2 import stem
 from typing import List
-from functools import lru_cache
 from pprint import pprint
-from collections import namedtuple
+
+from indexing import IndexEntry, build_index, tokenize
+from queries import QueryPart, read_query_file, parse_query_str
+from util import safe_int, get_file_lines
 
 STOPWORDS_FILE = "englishST.txt"
-
-@lru_cache(maxsize=4096)
-def memoized_stem(word):
-    return stem(word)
-
-def safe_int(x):
-    try:
-        return int(x)
-    except ValueError:
-        return x
-
-def get_file_lines(filename):
-    with open(filename) as f:
-        return [line.rstrip() for line in f]
-
-def tokenize(text, filter_set=[]):
-    # To lower
-    toks = text.lower()
-
-    # Strip punctuation
-    #
-    # When doing a search for `#1(san, francisco)`,
-    # a doc containing "San Francisco-based" was missing
-    # so I decided to put spaces in place of punctuation instead of ""
-    spaces = len(string.punctuation) * " "
-    toks = toks.translate(str.maketrans(string.punctuation, spaces))
-
-    # Actually be list of words
-    toks = toks.split()
-
-    # Filter out certain toks
-    toks = filter(lambda t: t not in filter_set, toks)
-
-    # stemmed tokens
-    toks = map(memoized_stem, toks)
-
-    return list(toks)
-
-def preprocess_word(s, filter_set):
-    toks = tokenize(s, filter_set)
-    if len(toks) != 1:
-        print("Odd s '{}', got toks: {}".format(s, toks))
-        sys.exit(1)
-    return toks[0]
 
 class Doc():
     num : str
@@ -115,38 +70,6 @@ def get_file_docmap(filename):
     #     ts = ts.union(Doc.get_xml_node_tags(doc))
     # print(ts)
 
-IndexEntry = namedtuple("IndexEntry", ("doc", "positions"))
-
-def build_index(docmap):
-    index = {}
-    for doc in docmap.values():
-        doctoks = {}
-
-        for idx, token in enumerate(doc.tokens):
-            if token not in doctoks:
-                doctoks[token] = []
-
-            doctoks[token].append(idx)
-
-        for token, positions in doctoks.items():
-            if token not in index:
-                index[token] = []
-
-            entry = IndexEntry(doc.num, positions)
-            index[token].append(entry)
-
-    return index
-
-def read_query_file(filename):
-    with open(filename) as f:
-        queries = []
-        for line in f:
-            key, query = line.split(" ", 1)
-            queries.append(
-                (key.rstrip(":"), query)
-            )
-        return queries
-
 def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("sample_filename", type=str,
@@ -158,118 +81,6 @@ def read_args():
                         help='file to read queries from')
 
     return parser.parse_args()
-
-def parse_query_str(query_str, stopwords):
-    ops = ["OR", "AND"]
-    chosen_op = None
-
-    # Determine operation
-    for op in ops:
-        if op in query_str:
-            if chosen_op is not None:
-                print("Multiple ops found in query:", query_str)
-                sys.exit(1)
-
-            chosen_op = op
-
-            # split by op
-            parts = query_str.split(" " + op + " ")
-            if len(parts) != 2:
-                print("Invalid query. Should be one OP in middle of query:", query_str)
-                print("Got", parts)
-                sys.exit(1)
-
-    if chosen_op is None:
-        parts = [query_str]
-        chosen_op = "AND"
-
-    re_proximity = re.compile("^#(\d+)\((.*?), ?(.*?)\)$")
-
-    for i, s in enumerate(parts):
-        s = str.strip(s)
-
-        negated = s.startswith("NOT ")
-        if negated:
-            s = s[4:]
-
-        quoted = s.startswith("\"") and s.endswith("\"")
-        distance = None
-        if quoted:
-            s = s[1:-1]
-            s = s.split()
-            if len(s) == 1:
-                s = s[0]
-                quoted = False
-            elif len(s) == 2:
-                s = (s[0], s[1])
-            else:
-                print("Quoted query should have 1 or 2 words")
-                sys.exit(1)
-        else:
-            proxim_match = re_proximity.match(s)
-            if proxim_match:
-                distance, text_a, text_b = proxim_match.groups()
-                distance = int(distance)
-                s = (text_a, text_b)
-
-        if isinstance(s, tuple):
-            # preprocess them
-            text_a, text_b = s
-            text_a = preprocess_word(text_a, stopwords)
-            text_b = preprocess_word(text_b, stopwords)
-            s = (text_a, text_b)
-        else:
-            s = preprocess_word(s, stopwords)
-
-        parts[i] = QueryPart(s, negated, quoted, distance)
-
-    return (chosen_op, parts)
-
-class QueryPart():
-    text: str
-    negated: bool
-    phrasal: bool
-    distance: int
-
-    def __init__(self, text, negated, phrasal, distance):
-        self.text = text
-        self.negated = negated
-        self.phrasal = phrasal
-        self.distance = distance
-
-        if phrasal and distance is not None:
-            print("Phrasal and distance are mutually exclusive fields:", self)
-            sys.exit(1)
-        elif distance == 0:
-            print("Invalid distance 0:", self)
-
-    def __members(self):
-        return (self.text, self.negated, self.phrasal, self.distance)
-
-    def __eq__(self, other):
-        if type(other) is type(self):
-            return self.__members() == other.__members()
-        return False
-
-    def __hash__(self):
-        return hash(self.__members())
-
-    def __str__(self):
-        s = "QueryPart("
-        if self.negated:
-            s += "NOT "
-
-        if self.phrasal:
-            s += "\"" + " ".join(self.text) + "\""
-        elif self.distance is not None:
-            s += "#" + str(self.distance) + "(" + self.text[0] + ", " + self.text[1] + ")"
-        else:
-            s += self.text
-
-        return s + ")"
-
-    def __repr__(self):
-        return self.__str__()
 
 def search(docmap, index, query):
     op, parts = query
