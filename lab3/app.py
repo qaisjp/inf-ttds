@@ -22,7 +22,9 @@ def read_args():
                         help='file to read queries from')
 
     parser.add_argument("--print-doc", dest="print_doc", type=str, help="doc to print")
+
     parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="use term weighting")
+    parser.add_argument("--debug", action='store_true', help="debug output")
 
     return parser.parse_args()
 
@@ -89,10 +91,17 @@ def main():
             key=SearchResult.rank.fget, reverse=True
         )
 
-        # print(len(results), "documents, query: ", end="")
-        # pprint(pair)
+        if args.debug:
+            print(len(results), "documents, query: ", end="")
+            pprint(pair)
+
         for result in results:
             print("{} 0 {} 0 {} 0".format(key, result.doc, result.rank))
+
+        if args.debug:
+            print()
+            print()
+
 
 if __name__ == "__main__":
     main()
