@@ -119,7 +119,7 @@ def search(docmap, index, query, use_tfidf):
 
     if op == "AND":
         inclusions = map(set, inclusions)
-        inclusions = reduce(set.intersection, inclusions, set())
+        inclusions = reduce(set.intersection, inclusions)
     else:
         inclusions = itertools.chain.from_iterable(inclusions)
 
