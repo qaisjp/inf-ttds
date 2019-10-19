@@ -1,5 +1,6 @@
 import itertools
 
+from functools import reduce
 from typing import List
 from util import safe_int
 
@@ -97,19 +98,11 @@ def search(docmap, index, query):
         inclusions = inclusions.values()
 
     if op == "AND":
-        # common docs
-        new_inclusions = None
-        for ds in inclusions:
-            if new_inclusions is None:
-                new_inclusions = set(ds)
-            else:
-                new_inclusions = new_inclusions & set(ds)
-        inclusions = new_inclusions
+        inclusions = map(set, inclusions)
+        inclusions = reduce(set.intersection, inclusions)
+    else:
+        inclusions = itertools.chain.from_iterable(inclusions)
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
-
-    # Inclusions needs to be flattened if it's not already a set
-    if not isinstance(inclusions, set):
-        inclusions = itertools.chain.from_iterable(inclusions)
 
     return sorted(set(inclusions) - set(exclusions), key=safe_int)
