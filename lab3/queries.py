@@ -93,6 +93,7 @@ def parse_query_str(query_str, stopwords, splitphrase=False):
 
     re_proximity = re.compile("^#(\d+)\((.*?), ?(.*?)\)$")
 
+    new_parts = []
     for i, s in enumerate(parts):
         s = str.strip(s)
 
@@ -125,9 +126,9 @@ def parse_query_str(query_str, stopwords, splitphrase=False):
             text_a = preprocess_word(text_a, stopwords)
             text_b = preprocess_word(text_b, stopwords)
             s = (text_a, text_b)
-        else:
+        elif s not in stopwords:
             s = preprocess_word(s, stopwords)
 
-        parts[i] = QueryPart(s, negated, quoted, distance)
+        new_parts.append(QueryPart(s, negated, quoted, distance))
 
-    return (chosen_op, parts)
+    return (chosen_op, new_parts)
