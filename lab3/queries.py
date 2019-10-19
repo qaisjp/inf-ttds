@@ -63,7 +63,7 @@ def read_query_file(filename):
         for line in f:
             key, query = line.split(" ", 1)
             queries.append(
-                (key.rstrip(":"), query)
+                (key.rstrip(":").lstrip("q"), query)
             )
         return queries
 
