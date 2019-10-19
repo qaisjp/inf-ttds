@@ -88,7 +88,7 @@ def parse_query_str(query_str, stopwords):
 
     if chosen_op is None:
         parts = [query_str]
-        chosen_op = "AND"
+        chosen_op = "OR"
 
     re_proximity = re.compile("^#(\d+)\((.*?), ?(.*?)\)$")
 

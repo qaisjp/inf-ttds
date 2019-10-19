@@ -89,24 +89,14 @@ def search(docmap, index, query):
         else:
             exclusions[qpart] = docs
 
-    if op == "OR":
-        assert(len(exclusions) == 0)
-        inclusions = itertools.chain.from_iterable(inclusions.values())
-        return sorted(set(inclusions), key=safe_int)
-    else:
-        pass # Operation is AND
-
     # If inclusions is empty, but exclusions contains stuff
     # we want to set inclusions to entire document set
     if len(inclusions) == 0 and len(exclusions) > 0:
-        inclusions = map(
-            lambda entries: entries.keys(), index.values())
-        inclusions = itertools.chain.from_iterable(inclusions)
+        inclusions = map(dict.keys, index.values())
     else:
-        # Since the entire document set is a list, we need to normalise
-        # our original inclusion map to be a list, to make code common
         inclusions = inclusions.values()
 
+    if op == "AND":
         # common docs
         new_inclusions = None
         for ds in inclusions:
@@ -117,5 +107,9 @@ def search(docmap, index, query):
         inclusions = new_inclusions
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
+
+    # Inclusions needs to be flattened if it's not already a set
+    if not isinstance(inclusions, set):
+        inclusions = itertools.chain.from_iterable(inclusions)
 
     return sorted(set(inclusions) - set(exclusions), key=safe_int)
