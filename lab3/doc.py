@@ -1,6 +1,7 @@
 import itertools
+import math
 
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from functools import reduce
 from typing import List
 
@@ -95,9 +96,19 @@ def search(docmap, index, query, use_tfidf):
         else:
             exclusions[qpart] = docs
 
+    scores = defaultdict(lambda: 1)
     if use_tfidf:
-        print("Perform tfidf")
-        return
+        scores = defaultdict(lambda: 0)
+        total_doc_count = len(docmap)
+
+        for operand, term_docs in inclusions.items():
+            term = operand.text
+            docpos = index[term]  # map[docnum][[]int]
+            df = len(term_docs)
+
+            for doc in term_docs:
+                tf = len(docpos[doc])
+                scores[doc] += (1 + math.log10(tf)) * math.log10(total_doc_count / df)
 
     # If inclusions is empty, but exclusions contains stuff
     # we want to set inclusions to entire document set
@@ -114,4 +125,4 @@ def search(docmap, index, query, use_tfidf):
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
-    return map(lambda d: SearchResult(d, 1), set(inclusions) - set(exclusions))
+    return map(lambda d: SearchResult(d, scores[d]), set(inclusions) - set(exclusions))
