@@ -67,7 +67,7 @@ def read_query_file(filename):
             )
         return queries
 
-def parse_query_str(query_str, stopwords):
+def parse_query_str(query_str, stopwords, splitphrase=False):
     ops = ["OR", "AND"]
     chosen_op = None
 
@@ -85,7 +85,10 @@ def parse_query_str(query_str, stopwords):
                 raise QueryError("Invalid query. Should be one OP in middle of query: {}\nGot: {}".format(query_str, parts))
 
     if chosen_op is None:
-        parts = [query_str]
+        if splitphrase:
+            parts = query_str.split()
+        else:
+            parts = [query_str]
         chosen_op = "OR"
 
     re_proximity = re.compile("^#(\d+)\((.*?), ?(.*?)\)$")

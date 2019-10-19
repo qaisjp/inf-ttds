@@ -32,11 +32,11 @@ def main():
     args = read_args()
     if args.queries_filename:
         queries = list(map(
-            lambda q: (q[0], parse_query_str(q[1], stopwords)),
+            lambda q: (q[0], parse_query_str(q[1], stopwords, splitphrase=args.use_tfidf)),
             read_query_file(args.queries_filename)
         ))
     else:
-        queries = [("1", parse_query_str(args.query_str, stopwords))]
+        queries = [("1", parse_query_str(args.query_str, stopwords, splitphrase=args.use_tfidf))]
 
     filename = args.sample_filename
     if not os.path.isfile(filename):
