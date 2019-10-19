@@ -25,6 +25,7 @@ def read_args():
 
     parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="use term weighting")
     parser.add_argument("--debug", action='store_true', help="debug output")
+    parser.add_argument("--refresh", action='store_true', help="refresh index")
 
     return parser.parse_args()
 
@@ -46,7 +47,7 @@ def main():
         return
 
     index_pickled_filename = filename + ".index"
-    if not os.path.isfile(index_pickled_filename):
+    if args.refresh or not os.path.isfile(index_pickled_filename):
         print("Building a fresh index...")
         docmap = get_file_docmap(filename)
 
