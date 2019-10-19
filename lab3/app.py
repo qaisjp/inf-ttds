@@ -7,7 +7,7 @@ from pprint import pprint
 from doc import Doc, search
 from indexing import build_index, tokenize, get_file_docmap
 from queries import QueryPart, read_query_file, parse_query_str
-from util import get_file_lines
+from util import get_file_lines, safe_int
 
 STOPWORDS_FILE = "englishST.txt"
 
@@ -81,6 +81,7 @@ def main():
     for pair in queries:
         key, q = pair
         results = search(docmap, index, q, args.use_tfidf)
+        results = sorted(results, key=safe_int)
         print(len(results), "documents, query: ", end="")
         pprint(pair)
         pprint(results)

@@ -2,7 +2,6 @@ import itertools
 
 from functools import reduce
 from typing import List
-from util import safe_int
 
 class Doc():
     num : str
@@ -108,4 +107,4 @@ def search(docmap, index, query, use_tfidf):
     if use_tfidf:
         print("Perform tfidf")
 
-    return sorted(set(inclusions) - set(exclusions), key=safe_int)
+    return set(inclusions) - set(exclusions)
