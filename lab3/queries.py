@@ -128,6 +128,8 @@ def parse_query_str(query_str, stopwords, splitphrase=False):
             s = (text_a, text_b)
         elif s not in stopwords:
             s = preprocess_word(s, stopwords)
+        elif s in stopwords:
+            continue
 
         new_parts.append(QueryPart(s, negated, quoted, distance))
 
