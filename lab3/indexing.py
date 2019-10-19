@@ -30,6 +30,12 @@ def build_index(docmap):
 
     return index
 
+def non_alpha_to_space(l):
+    if l.isalpha():
+        return l
+    else:
+        return " "
+
 def tokenize(text, filter_set=[]):
     # To lower
     toks = text.lower()
@@ -39,8 +45,11 @@ def tokenize(text, filter_set=[]):
     # When doing a search for `#1(san, francisco)`,
     # a doc containing "San Francisco-based" was missing
     # so I decided to put spaces in place of punctuation instead of ""
-    spaces = len(string.punctuation) * " "
-    toks = toks.translate(str.maketrans(string.punctuation, spaces))
+    # spaces = len(string.punctuation) * " "
+    # toks = toks.translate(str.maketrans(string.punctuation, spaces))
+    #
+    # Also decided to just only keep letters rather than numbers too
+    toks = "".join(map(non_alpha_to_space, toks))
 
     # Actually be list of words
     toks = toks.split()
