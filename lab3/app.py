@@ -22,6 +22,8 @@ def read_args():
                         help='file to read queries from')
 
     parser.add_argument("--print-doc", dest="print_doc", type=str, help="doc to print")
+
+    parser.add_argument("--limit", default=1000, type=int, help="default number of results to return per query")
     parser.add_argument("--places", dest="decimal_places", type=int, help="decimal places for index.txt. if tfidf is set, this is 4, otherwise 0. or you can override")
 
     parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="use term weighting")
@@ -110,6 +112,9 @@ def main():
         if args.debug:
             print(len(results), "documents, query: ", end="")
             pprint(pair)
+
+        if len(results) > args.limit:
+            results = list(results)[:args.limit]
 
         for result in results:
             print(output_format.format(key, result.doc, result.rank))
