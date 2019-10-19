@@ -5,7 +5,7 @@ import pickle
 from pprint import pprint
 
 from doc import Doc, search
-from indexing import IndexEntry, build_index, tokenize, get_file_docmap
+from indexing import build_index, tokenize, get_file_docmap
 from queries import QueryPart, read_query_file, parse_query_str
 from util import get_file_lines
 

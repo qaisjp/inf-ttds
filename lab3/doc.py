@@ -49,8 +49,8 @@ def search(docmap, index, query):
                 # ( doc_num, term_a_positions, term_b_positions )
                 matching_docs = [
                     (doc_a, term_a_positions, term_b_positions)
-                    for doc_a, term_a_positions in entries_a
-                    for doc_b, term_b_positions in entries_b
+                    for doc_a, term_a_positions in entries_a.items()
+                    for doc_b, term_b_positions in entries_b.items()
                     if doc_a == doc_b
                 ]
 
@@ -78,7 +78,7 @@ def search(docmap, index, query):
                 docs = nearby_docs
                 found = True
         elif qpart.text in index:
-            docs = map(lambda entry: entry.doc, index[qpart.text])
+            docs = index[qpart.text].keys()
             found = True
         else:
             print("Term '%s' not found" % qpart.text)
@@ -103,7 +103,7 @@ def search(docmap, index, query):
     # we want to set inclusions to entire document set
     if len(inclusions) == 0 and len(exclusions) > 0:
         inclusions = map(
-            lambda entries: [entry.doc for entry in entries], index.values())
+            lambda entries: entries.keys(), index.values())
         inclusions = itertools.chain.from_iterable(inclusions)
     else:
         # Since the entire document set is a list, we need to normalise

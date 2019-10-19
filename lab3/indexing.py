@@ -6,8 +6,6 @@ from doc import Doc
 from functools import lru_cache
 from stemming.porter2 import stem
 
-IndexEntry = namedtuple("IndexEntry", ("doc", "positions"))
-
 @lru_cache(maxsize=4096)
 def memoized_stem(word):
     return stem(word)
@@ -25,10 +23,9 @@ def build_index(docmap):
 
         for token, positions in doctoks.items():
             if token not in index:
-                index[token] = []
+                index[token] = {}
 
-            entry = IndexEntry(doc.num, positions)
-            index[token].append(entry)
+            index[token][doc.num] = positions
 
     return index
 
