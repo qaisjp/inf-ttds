@@ -2,6 +2,9 @@ import re
 
 from indexing import tokenize
 
+class QueryError(Exception):
+    pass
+
 class QueryPart():
     text: str
     negated: bool
@@ -15,10 +18,9 @@ class QueryPart():
         self.distance = distance
 
         if phrasal and distance is not None:
-            print("Phrasal and distance are mutually exclusive fields:", self)
-            sys.exit(1)
+            raise QueryError("Phrasal and distance are mutually exclusive fields: {}".format(self))
         elif distance == 0:
-            print("Invalid distance 0:", self)
+            raise QueryError("Invalid distance 0: {}".format(self))
 
     def __members(self):
         return (self.text, self.negated, self.phrasal, self.distance)
@@ -52,8 +54,7 @@ class QueryPart():
 def preprocess_word(s, filter_set):
     toks = tokenize(s, filter_set)
     if len(toks) != 1:
-        print("Odd s '{}', got toks: {}".format(s, toks))
-        sys.exit(1)
+        raise QueryError("Odd s '{}', got toks: {}".format(s, toks))
     return toks[0]
 
 def read_query_file(filename):
@@ -74,17 +75,14 @@ def parse_query_str(query_str, stopwords):
     for op in ops:
         if op in query_str:
             if chosen_op is not None:
-                print("Multiple ops found in query:", query_str)
-                sys.exit(1)
+                raise QueryError("Multiple ops found in query: {}".format(query_str))
 
             chosen_op = op
 
             # split by op
             parts = query_str.split(" " + op + " ")
             if len(parts) != 2:
-                print("Invalid query. Should be one OP in middle of query:", query_str)
-                print("Got", parts)
-                sys.exit(1)
+                raise QueryError("Invalid query. Should be one OP in middle of query: {}\nGot: {}".format(query_str, parts))
 
     if chosen_op is None:
         parts = [query_str]
@@ -110,8 +108,7 @@ def parse_query_str(query_str, stopwords):
             elif len(s) == 2:
                 s = (s[0], s[1])
             else:
-                print("Quoted query should have 1 or 2 words")
-                sys.exit(1)
+                raise QueryError("Quoted query should have 1 or 2 words")
         else:
             proxim_match = re_proximity.match(s)
             if proxim_match:
