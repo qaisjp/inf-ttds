@@ -45,15 +45,14 @@ def search(docmap, index, query):
                 entries_a = index[term_a]
                 entries_b = index[term_b]
 
+                nearby_docs = []
+
                 # Pluck out position lists where docs match
                 # ( doc_num, term_a_positions, term_b_positions )
-                matching_docs = [
-                    (doc, entries_a[doc], entries_b[doc])
-                    for doc in set(entries_a.keys()) & set(entries_b.keys())
-                ]
+                for doc in set(entries_a.keys()) & set(entries_b.keys()):
+                    positions_a = entries_a[doc]
+                    positions_b = entries_b[doc]
 
-                nearby_docs = []
-                for doc, positions_a, positions_b in matching_docs:
                     doc_pos_pairs = [
                         (pos_a, pos_b)
                         for pos_a in positions_a
