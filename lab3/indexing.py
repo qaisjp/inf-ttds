@@ -5,6 +5,7 @@ from collections import namedtuple
 from doc import Doc
 from functools import lru_cache
 from stemming.porter2 import stem
+from util import safe_int
 
 @lru_cache(maxsize=4096)
 def memoized_stem(word):
@@ -72,3 +73,15 @@ def get_file_docmap(filename):
     # for doc in xml.iter("DOC"):
     #     ts = ts.union(Doc.get_xml_node_tags(doc))
     # print(ts)
+
+def index_to_str(index):
+    lines = []
+    for token in sorted(index.keys()):
+        lines.append(token + ":")
+
+        docpos = index[token]
+        docs = sorted(docpos.keys(), key=safe_int)
+        for doc in docs:
+            positions = ",".join(map(str,sorted(docpos[doc])))
+            lines.append("\t{}: {}".format(doc, positions))
+    return "\n".join(lines)

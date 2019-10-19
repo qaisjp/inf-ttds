@@ -5,7 +5,7 @@ import pickle
 from pprint import pprint
 
 from doc import Doc, search, SearchResult
-from indexing import build_index, tokenize, get_file_docmap
+from indexing import build_index, tokenize, get_file_docmap, index_to_str
 from queries import QueryPart, read_query_file, parse_query_str
 from util import get_file_lines, safe_int
 
@@ -66,6 +66,11 @@ def main():
             print("Index built, saving to", index_pickled_filename, end="...")
             pickle.dump((docmap, index), f)
             print("done!")
+
+        with open(index_pickled_filename+".txt", "w") as f:
+            f.write(index_to_str(index) + "\n")
+            print(index_pickled_filename+".txt", "updated!")
+
     else:
         print("Reading index from", index_pickled_filename)
         print()
