@@ -30,7 +30,7 @@ class Doc():
     def __str__(self):
         return "Doc(num=%s, headline=%s, text=[len:%d])" % (self.num, self.headline, len(self.text))
 
-def search(docmap, index, query):
+def search(docmap, index, query, use_tfidf):
     op, parts = query
 
     inclusions = {}
@@ -104,5 +104,8 @@ def search(docmap, index, query):
         inclusions = itertools.chain.from_iterable(inclusions)
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
+
+    if use_tfidf:
+        print("Perform tfidf")
 
     return sorted(set(inclusions) - set(exclusions), key=safe_int)

@@ -22,6 +22,7 @@ def read_args():
                         help='file to read queries from')
 
     parser.add_argument("--print-doc", dest="print_doc", type=str, help="doc to print")
+    parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="use term weighting")
 
     return parser.parse_args()
 
@@ -79,7 +80,7 @@ def main():
     # print(index["pyramid"])
     for pair in queries:
         key, q = pair
-        results = search(docmap, index, q)
+        results = search(docmap, index, q, args.use_tfidf)
         print(len(results), "documents, query: ", end="")
         pprint(pair)
         pprint(results)
