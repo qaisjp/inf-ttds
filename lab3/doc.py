@@ -77,6 +77,9 @@ def search(docmap, index, query, use_tfidf):
 
                 docs = nearby_docs
                 found = True
+            else:
+                print("Terms '{}' and '{}' not found".format(term_a, term_b))
+                continue
         elif qpart.text in index:
             docs = index[qpart.text].keys()
             found = True
@@ -105,7 +108,7 @@ def search(docmap, index, query, use_tfidf):
 
     if op == "AND":
         inclusions = map(set, inclusions)
-        inclusions = reduce(set.intersection, inclusions)
+        inclusions = reduce(set.intersection, inclusions, set())
     else:
         inclusions = itertools.chain.from_iterable(inclusions)
 
