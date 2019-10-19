@@ -4,7 +4,7 @@ import os.path
 import pickle
 from pprint import pprint
 
-from doc import Doc, search
+from doc import Doc, search, SearchResult
 from indexing import build_index, tokenize, get_file_docmap
 from queries import QueryPart, read_query_file, parse_query_str
 from util import get_file_lines, safe_int
@@ -81,12 +81,18 @@ def main():
     for pair in queries:
         key, q = pair
         results = search(docmap, index, q, args.use_tfidf)
-        results = sorted(results, key=safe_int)
-        print(len(results), "documents, query: ", end="")
-        pprint(pair)
-        pprint(results)
-        print()
-        print()
+        results = sorted(
+            # sort by doc num ASC
+            sorted(results, key=lambda d: safe_int(d.doc)),
+
+            # and then by score DESC
+            key=SearchResult.rank.fget, reverse=True
+        )
+
+        # print(len(results), "documents, query: ", end="")
+        # pprint(pair)
+        for result in results:
+            print("{} 0 {} 0 {} 0".format(key, result.doc, result.rank))
 
 if __name__ == "__main__":
     main()

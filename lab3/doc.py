@@ -1,7 +1,10 @@
 import itertools
 
+from collections import namedtuple
 from functools import reduce
 from typing import List
+
+SearchResult = namedtuple("SearchResult", ("doc", "rank"))
 
 class Doc():
     num : str
@@ -89,6 +92,10 @@ def search(docmap, index, query, use_tfidf):
         else:
             exclusions[qpart] = docs
 
+    if use_tfidf:
+        print("Perform tfidf")
+        return
+
     # If inclusions is empty, but exclusions contains stuff
     # we want to set inclusions to entire document set
     if len(inclusions) == 0 and len(exclusions) > 0:
@@ -104,7 +111,4 @@ def search(docmap, index, query, use_tfidf):
 
     exclusions = itertools.chain.from_iterable(exclusions.values())
 
-    if use_tfidf:
-        print("Perform tfidf")
-
-    return set(inclusions) - set(exclusions)
+    return map(lambda d: SearchResult(d, 1), set(inclusions) - set(exclusions))
