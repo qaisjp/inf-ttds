@@ -1,5 +1,3 @@
-Reading index from cw1/trec.5000.xml.index
-
 1 0 5016 0 1 0
 1 0 5130 0 1 0
 1 0 5239 0 1 0

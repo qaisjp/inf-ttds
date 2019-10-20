@@ -2,12 +2,12 @@ import argparse
 import sys
 import os.path
 import pickle
-from pprint import pprint
+from pprint import pprint, pformat
 
 from doc import Doc, search, SearchResult
 from indexing import build_index, tokenize, get_file_docmap, index_to_str
 from queries import QueryPart, read_query_file, parse_query_str
-from util import get_file_lines, safe_int
+from util import get_file_lines, safe_int, eprint
 
 STOPWORDS_FILE = "englishST.txt"
 
@@ -46,12 +46,12 @@ def main():
 
     filename = args.sample_filename
     if not os.path.isfile(filename):
-        print("Filename '%s' does not exist" % filename)
+        eprint("Filename '%s' does not exist" % filename)
         return
 
     index_pickled_filename = filename + ".index"
     if args.refresh or not os.path.isfile(index_pickled_filename):
-        print("Building a fresh index...")
+        eprint("Building a fresh index...")
         docmap = get_file_docmap(filename)
 
         for doc in docmap.values():
@@ -67,17 +67,17 @@ def main():
         index = build_index(docmap)
 
         with open(index_pickled_filename, "wb") as f:
-            print("Index built, saving to", index_pickled_filename, end="...")
+            eprint("Index built, saving to", index_pickled_filename, end="...")
             pickle.dump((docmap, index), f)
-            print("done!")
+            eprint("done!")
 
         with open(index_pickled_filename+".txt", "w") as f:
             f.write(index_to_str(index) + "\n")
-            print(index_pickled_filename+".txt", "updated!")
+            eprint(index_pickled_filename+".txt", "updated!")
 
     else:
-        print("Reading index from", index_pickled_filename)
-        print()
+        eprint("Reading index from", index_pickled_filename)
+        eprint()
         with open(index_pickled_filename, "rb") as f:
             docmap, index = pickle.load(f)
 
@@ -110,8 +110,8 @@ def main():
         )
 
         if args.debug:
-            print(len(results), "documents, query: ", end="")
-            pprint(pair)
+            eprint(len(results), "documents, query: ", end="")
+            eprint(pformat(pair))
 
         if len(results) > args.limit:
             results = list(results)[:args.limit]
@@ -120,8 +120,8 @@ def main():
             print(output_format.format(key, result.doc, result.rank))
 
         if args.debug:
-            print()
-            print()
+            eprint()
+            eprint()
 
 
 if __name__ == "__main__":
