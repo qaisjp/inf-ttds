@@ -13,8 +13,8 @@ STOPWORDS_FILE = "englishST.txt"
 
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("sample_filename", type=str,
-                        help='the filename of the sample')
+    parser.add_argument("collection_filename", type=str,
+                        help='the collection filename')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('query_str', nargs='?', type=str,
                         help='query string to use')
@@ -44,7 +44,7 @@ def main():
     else:
         queries = [("1", parse_query_str(args.query_str, stopwords, splitphrase=args.use_tfidf))]
 
-    filename = args.sample_filename
+    filename = args.collection_filename
     if not os.path.isfile(filename):
         eprint("Filename '%s' does not exist" % filename)
         return

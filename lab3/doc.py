@@ -44,7 +44,7 @@ def search(docmap, index, query, use_tfidf):
         if qpart.phrasal or (qpart.distance is not None):
             term_a, term_b = qpart.text
 
-            # Do both these terms appear the entire sample?
+            # Do both these terms appear the entire collection?
             if term_a in index and term_b in index:
                 entries_a = index[term_a]
                 entries_b = index[term_b]
