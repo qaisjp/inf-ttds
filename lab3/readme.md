@@ -7,6 +7,8 @@ You need the `stemming` library installed. Run `pip install stemming`.
 
 If you have `pipenv` installed, you can just use `pipenv install` to install from the given `Pipfile`.
 
+**You must use Python 3.6 or above, like a clean and respectable human that you are.**
+
 ## Usage
 
 Here is the output of `python app.py --help`:
