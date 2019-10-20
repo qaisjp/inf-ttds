@@ -12,9 +12,8 @@ If you have `pipenv` installed, you can just use `pipenv install` to install fro
 Here is the output of `python app.py --help`:
 
 ```
-usage: app.py [-h] [--queries-from QUERIES_FILENAME] [--print-doc PRINT_DOC]
-              [--limit LIMIT] [--places DECIMAL_PLACES] [--tfidf] [--debug]
-              [--refresh]
+usage: app.py [-h] [-f QUERIES_FILENAME] [-d PRINT_DOC] [-l LIMIT]
+              [-p DECIMAL_PLACES] [-t] [-v] [-r]
               collection_filename [query_str]
 
 positional arguments:
@@ -23,22 +22,23 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --queries-from QUERIES_FILENAME
+  -f QUERIES_FILENAME, --queries-from QUERIES_FILENAME
                         File to read queries from
-  --print-doc PRINT_DOC
+  -d PRINT_DOC, --print-doc PRINT_DOC
                         Print the document associated with the number and
                         immediately return. Query input is ignored but
                         required
-  --limit LIMIT         Results to return per query. Negative values return
+  -l LIMIT, --limit LIMIT
+                        Results to return per query. Negative values return
                         all. Default: 1000
-  --places DECIMAL_PLACES
+  -p DECIMAL_PLACES, --places DECIMAL_PLACES
                         Decimal places to round to for rank output. Negative
                         values don't round. Default: with tfidf, -1, otherwise
                         0
-  --tfidf               Enable term weighting (necessary for
+  -t, --tfidf           Enable term weighting (necessary for
                         queries.ranked.txt)
-  --debug               Enable debug output
-  --refresh             Forcefully refresh the index
+  -v, --debug           Enable debug output
+  -r, --refresh         Forcefully refresh the index
 ```
 
 To produce `results.ranked.txt` from `queries.ranked.txt`, you should do:
