@@ -14,15 +14,15 @@ def memoized_stem(word):
 def build_index(docmap):
     index = {}
     for doc in docmap.values():
-        doctoks = {}
+        positions = {}
 
         for idx, token in enumerate(doc.tokens):
-            if token not in doctoks:
-                doctoks[token] = []
+            if token not in positions:
+                positions[token] = []
 
-            doctoks[token].append(idx)
+            positions[token].append(idx)
 
-        for token, positions in doctoks.items():
+        for token, positions in positions.items():
             if token not in index:
                 index[token] = {}
 
