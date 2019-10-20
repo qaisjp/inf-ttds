@@ -73,16 +73,19 @@ def parse_query_str(query_str, stopwords, splitphrase=False):
 
     # Determine operation
     for op in ops:
-        if op in query_str:
+        op_spaced = " " + op + " "
+        if op_spaced in query_str:
             if chosen_op is not None:
                 raise QueryError("Multiple ops found in query: {}".format(query_str))
 
             chosen_op = op
 
             # split by op
-            parts = query_str.split(" " + op + " ")
+            parts = query_str.split(op_spaced)
             if len(parts) != 2:
                 raise QueryError("Invalid query. Should be one OP in middle of query: {}\nGot: {}".format(query_str, parts))
+
+            break
 
     if chosen_op is None:
         if splitphrase:
