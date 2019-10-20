@@ -14,21 +14,21 @@ STOPWORDS_FILE = "englishST.txt"
 def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("collection_filename", type=str,
-                        help='the collection filename')
+                        help='Filename for the collection')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('query_str', nargs='?', type=str,
-                        help='query string to use')
+                        help='Query to use')
     group.add_argument('--queries-from', dest='queries_filename', type=str,
-                        help='file to read queries from')
+                        help='File to read queries from')
 
-    parser.add_argument("--print-doc", dest="print_doc", type=str, help="doc to print")
+    parser.add_argument("--print-doc", dest="print_doc", type=str, help="Print the document associated with the number and immediately return. Query input is ignored but required")
 
-    parser.add_argument("--limit", default=1000, type=int, help="default number of results to return per query")
-    parser.add_argument("--places", dest="decimal_places", type=int, help="decimal places for index.txt. if tfidf is set, this is 4, otherwise 0. or you can override")
+    parser.add_argument("--limit", default=1000, type=int, help="Results to return per query. Default: 1000")
+    parser.add_argument("--places", dest="decimal_places", type=int, help="Decimal places to use for rank output. Default: with tfidf, 4, otherwise 0")
 
-    parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="use term weighting")
-    parser.add_argument("--debug", action='store_true', help="debug output")
-    parser.add_argument("--refresh", action='store_true', help="refresh index")
+    parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="Enable term weighting (necessary for queries.ranked.txt)")
+    parser.add_argument("--debug", action='store_true', help="Enable debug output")
+    parser.add_argument("--refresh", action='store_true', help="Forcefully refresh the index")
 
     return parser.parse_args()
 
@@ -113,7 +113,7 @@ def main():
             eprint(len(results), "documents, query: ", end="")
             eprint(pformat(pair))
 
-        if len(results) > args.limit:
+        if args.limit >= 0 and len(results) > args.limit:
             results = list(results)[:args.limit]
 
         for result in results:
