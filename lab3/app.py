@@ -6,7 +6,7 @@ from pprint import pprint, pformat
 
 from doc import Doc, search, SearchResult
 from indexing import build_index, tokenize, get_file_docmap, index_to_str
-from queries import QueryPart, read_query_file, parse_query_str
+from queries import read_query_file, parse_query_str
 from util import get_file_lines, safe_int, eprint
 
 STOPWORDS_FILE = "englishST.txt"

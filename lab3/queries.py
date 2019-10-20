@@ -5,7 +5,7 @@ from indexing import tokenize
 class QueryError(Exception):
     pass
 
-class QueryPart():
+class QueryOperand():
     text: str
     negated: bool
     phrasal: bool
@@ -34,7 +34,7 @@ class QueryPart():
         return hash(self.__members())
 
     def __str__(self):
-        s = "QueryPart("
+        s = "QueryOperand("
         if self.negated:
             s += "NOT "
 
@@ -131,6 +131,6 @@ def parse_query_str(query_str, stopwords, splitphrase=False):
         elif s in stopwords:
             continue
 
-        new_parts.append(QueryPart(s, negated, quoted, distance))
+        new_parts.append(QueryOperand(s, negated, quoted, distance))
 
     return (chosen_op, new_parts)
