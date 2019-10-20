@@ -24,7 +24,7 @@ def read_args():
     parser.add_argument("--print-doc", dest="print_doc", type=str, help="Print the document associated with the number and immediately return. Query input is ignored but required")
 
     parser.add_argument("--limit", default=1000, type=int, help="Results to return per query. Default: 1000")
-    parser.add_argument("--places", dest="decimal_places", type=int, help="Decimal places to use for rank output. Default: with tfidf, 4, otherwise 0")
+    parser.add_argument("--places", dest="decimal_places", type=int, help="Decimal places to round to for rank output. Negative values show all. Default: with tfidf, -1, otherwise 0")
 
     parser.add_argument("--tfidf", dest="use_tfidf", action='store_true', help="Enable term weighting (necessary for queries.ranked.txt)")
     parser.add_argument("--debug", action='store_true', help="Enable debug output")
