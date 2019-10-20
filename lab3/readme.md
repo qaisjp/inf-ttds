@@ -53,7 +53,7 @@ To produce `results.boolean.txt` from `queries.boolean.txt`, you should do:
 python app.py trec.5000.xml --queries-from queries.boolean.txt > results.boolean.txt
 ```
 
-When you run one of these commands, two index files are created:
+When you run one of these commands, two index files are created (if the first one does not exist):
 
 - `$collection_filename.index` - a binary file which is loaded for later runs of this tool
 - `$collection_filename.index.txt` - a text file representing the binary data (not used by this tool)
