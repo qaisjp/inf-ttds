@@ -1,8 +1,10 @@
 import argparse
-import os.path
 import functools
+import os.path
+import sys
 
-from functools import reduce
+from feats import create_feats_dic, read_feats_dic, create_feats
+
 from pprint import pprint, pformat
 from util import eprint
 
@@ -39,50 +41,64 @@ classes = {
     14: "Travel & Events",
 }
 
-def read_args():
-    parser = argparse.ArgumentParser()
+class TTDS():
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            description='TTDS Coursework 2',
+            usage='''app.py <command> [<args>]
 
-    return parser.parse_args()
+The most commonly used commands are:
+    feats   Build feats files (and dict)
+''')
 
-def main():
-    args = read_args()
+        parser.add_argument('command', help='Subcommand to run')
 
-    with open("Tweets.14cat.train", "r", errors="ignore") as f:
-        lines = extract_bow(f)
+        args = parser.parse_args(sys.argv[1:2])
+        if not hasattr(self, args.command):
+            print('Unrecognized command')
+            parser.print_help()
+            exit(1)
 
-    if not os.path.isfile("feats.dic"):
-        eprint("Creating feats.dic...")
-        with open("feats.dic", "w") as f:
-            featdic = create_feats_dic(f, lines)
+        getattr(self, args.command)(sys.argv[2:])
 
-    with open("feats.dic", "r") as f:
-        featdic2 = read_feats_dic(f)
+    def feats(self, args):
+        parser = argparse.ArgumentParser(
+            description='generate feats stuff')
 
-    import json
-    featdic = json.dumps(featdic, sort_keys=True)
-    featdic2 = json.dumps(featdic2, sort_keys=True)
+        parser.add_argument('tweetfile', help="prefix file to use")
+        parser.add_argument('--refresh-dic', action='store_true')
 
-    print(featdic == featdic2)
+        args = parser.parse_args(args)
 
-def read_feats_dic(f):
-    d = {}
-    for line in f:
-        parts = line.split()
-        if len(parts) > 1:
-            n = parts[1]
-            s = parts[0]
-            d[n] = s
-            d[s] = n
-    return d
+        train_fpath = args.tweetfile + ".train"
+        test_fpath = args.tweetfile + ".test"
 
-def create_feats_dic(f, lines):
-    tokens = sorted(reduce(lambda x,y: x.union(set(y['tokens'])), lines, set()))
-    d = {}
-    for i, token in enumerate(tokens):
-        f.write(token + " " + str(i+1) + "\n")
-        d[i+1] = token
-        d[token] = i+1
-    return d
+        if not os.path.isfile(train_fpath):
+            print("{} is missing".format(train_fpath))
+            exit(1)
+        elif not os.path.isfile(test_fpath):
+            print("{} is missing".format(test_fpath))
+            exit(1)
+
+        with open(train_fpath, "r", errors="ignore") as f:
+            train_tweets = extract_bow(f)
+
+        with open(test_fpath, "r", errors="ignore") as f:
+            test_tweets = extract_bow(f)
+
+        if args.refresh_dic or not os.path.isfile("feats.dic"):
+            eprint("Creating feats.dic...")
+            with open("feats.dic", "w") as f:
+                featdic = create_feats_dic(f, tweets)
+        else:
+            with open("feats.dic", "r") as f:
+                featdic = read_feats_dic(f)
+
+        with open("feats.train", "w") as f:
+            create_feats(f, train_tweets, featdic)
+
+        with open("feats.test", "w") as f:
+            create_feats(f, test_tweets, featdic, filter_missing=True)
 
 
 def strip_alpha(word, hashtags=None):
@@ -136,4 +152,4 @@ def extract_bow(f):
     return lines
 
 if __name__ == "__main__":
-    main()
+    TTDS()
