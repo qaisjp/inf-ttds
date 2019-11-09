@@ -1,50 +1,4 @@
-::: {#banner}
-[![skip navigation](/images/spacer.gif){width="1"
-height="1"}](#main){.skiplink}
-
-+-----------------------------------------------------------------------+
-| +:--------------------+:--------------------+---------------------+   |
-| | ![The University of | ![School of         | ::: {align="left"}  |   |
-| | Edinburgh](/images/ | Informatics](/image | [![](/images/arrow. |   |
-| | crest.jpg){#logo    | s/title.jpg){#colle | gif){width="16"     |   |
-| | width="84"          | getitle             | height="11"}](http: |   |
-| | height="84"}        | width="479"         | //www.ed.ac.uk){.he |   |
-| |                     | height="84"}        | adertext}[Universit |   |
-| |                     |                     | y                   |   |
-| |                     |                     | Homepage](http://ww |   |
-| |                     |                     | w.ed.ac.uk){.header |   |
-| |                     |                     | text}\              |   |
-| |                     |                     | [![](/images/arrow. |   |
-| |                     |                     | gif){width="16"     |   |
-| |                     |                     | height="11"}](/){.h |   |
-| |                     |                     | eadertext}[School   |   |
-| |                     |                     | Homepage](/){.heade |   |
-| |                     |                     | rtext}\             |   |
-| |                     |                     | [![](/images/arrow. |   |
-| |                     |                     | gif){width="16"     |   |
-| |                     |                     | height="11"}](/abou |   |
-| |                     |                     | t/contact.html){.he |   |
-| |                     |                     | adertext}[School    |   |
-| |                     |                     | Contacts](/about/co |   |
-| |                     |                     | ntact.html){.header |   |
-| |                     |                     | text}\              |   |
-| |                     |                     | [![](/images/arrow. |   |
-| |                     |                     | gif){width="16"     |   |
-| |                     |                     | height="11"}](/sear |   |
-| |                     |                     | ch/){.headertext}[S |   |
-| |                     |                     | chool               |   |
-| |                     |                     | Search](/search/){. |   |
-| |                     |                     | headertext}\        |   |
-| |                     |                     | ![](/images/spacer. |   |
-| |                     |                     | gif){width="212"    |   |
-| |                     |                     | height="1"}         |   |
-| |                     |                     | :::                 |   |
-| +---------------------+---------------------+---------------------+   |
-+-----------------------------------------------------------------------+
-:::
-
-::: {#container}
-[]{#main}
+[Source](https://www.inf.ed.ac.uk/teaching/courses/tts/CW/assignment2.html)
 
 Coursework 2
 ============
@@ -67,17 +21,22 @@ has the list of relevant documents for each of the queries.
 Please follow the following steps:
 
 -   Download the following compressed file
-    [`systems.zip`](CW2/systems.zip). It has 7 files as follow:\
-    - 6 results files for 6 different IR systems, named
-    `S[1-6].results`, each contains the retrieved set of documents for
-    10 queries numbered from 1 to 10. The format of the files is as
-    follow:\
-    `       1 0 710 1 5.34 0        1 0 213 2 4.23 0        2 0 103 1 6.21 0 `
-    The numbers above represent the following in order:
-    `query_number 0 doc_number rank_of_doc score 0`.\
+    [`systems.zip`](CW2/systems.zip). It has 7 files as follow:
+    - 6 results files for 6 different IR systems,
+      named `S[1-6].results`, each contains the retrieved set of documents
+      for 10 queries numbered from 1 to 10. The format of the files is as
+      follow:
+        ```
+        1 0 710 1 5.34 0
+        1 0 213 2 4.23 0
+        2 0 103 1 6.21 0
+        ```
+
+      The numbers above represent the following in order: `query_number 0 doc_number rank_of_doc score 0`
+
     - `qrels.txt` file, which contains the list of relevant documents
-    for each of the 10 queries. The format of the file is as follows:\
-    `       1: (9090,3) (6850,2) (9574,2)` where the first number is the
+    for each of the 10 queries. The format of the file is as follows:
+    `1: (9090,3) (6850,2) (9574,2)` where the first number is the
     query number (`1:`), the remaining is the list of tuples of the
     document numbers and the value of relevance. e.g. `(9090,3)` means
     that document `9090` has a relevance value of 3. This value is only
@@ -141,7 +100,14 @@ Please apply the following:
 -   For the baseline system that you created with SVM classifier and BOW
     as features, print the measures in a file called `Eval.txt` with the
     following format:
-    `         Accuracy = 0.673         Macro-F1 = 0.631         Results per class:          1:   P=0.8   R=0.6   F=0.685          2:   P=0.45  R=0.712 F=0.551         3:   . . .`
+    ```
+    Accuracy = 0.673
+    Macro-F1 = 0.631
+    Results per class:
+    1: P=0.8 R=0.6 F=0.685
+    2: P=0.45 R=0.712 F=0.551
+    3: . . .
+    ```
 -   Try to improve the results of your classifier (you should have
     already did in the lab), the report a better performing system in a
     file: `Eval2.txt`.
@@ -214,22 +180,3 @@ Allowed / NOT Allowed
     No need to do any new work as long as you managed to achieve
     improvement of the baseline system. However, your mark depends on
     the amount of work and improvement you achieve.
-
-::: {align="CENTER"}
-![](/images/page_bar.gif){width="489" height="1"}\
-[Home](/) : [Teaching](/teaching/) : [Courses](/teaching/courses/) : [Tts](/teaching/courses/tts/) 
-:::
-:::
-
-+-----------------------------------------------------------------------+
-| ::: {align="center"}                                                  |
-| Informatics Forum, 10 Crichton Street, Edinburgh, EH8 9AB, Scotland,  |
-| UK\                                                                   |
-| Tel: +44 131 651 5661, Fax: +44 131 651 1426, E-mail:                 |
-| school-office\@inf.ed.ac.uk\                                          |
-| Please [contact our webadmin](/about/webmaster.html) with any         |
-| comments or corrections. [Logging and Cookies](/about/cookies.html)\  |
-| Unless explicitly stated otherwise, all material is copyright © The   |
-| University of Edinburgh                                               |
-| :::                                                                   |
-+-----------------------------------------------------------------------+
