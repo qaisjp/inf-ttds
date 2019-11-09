@@ -20,6 +20,24 @@ def create_feats_dic(f, lines):
         d[token] = i+1
     return d
 
+def read_feats(f):
+    tweets = []
+    for line in f:
+        parts = line.split()
+        tweet = {
+            "id": int(parts[-1][1:]),
+            "class": int(parts[0])
+        }
+
+        features = {}
+        for feature in parts[1:-1]:
+            key, value = feature.split(":")
+            features[int(key)] = int(value)
+
+        tweet["features"] = features
+        tweets.append(tweet)
+    return tweets
+
 def create_feats(f, tweets, featdic, filter_missing=False):
     for tweet in tweets:
         if filter_missing:

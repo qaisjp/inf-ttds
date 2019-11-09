@@ -3,7 +3,8 @@ import functools
 import os.path
 import sys
 
-from feats import create_feats_dic, read_feats_dic, create_feats
+from feats import create_feats_dic, read_feats_dic, read_feats, create_feats
+from pred import read_preds
 
 from pprint import pprint, pformat
 from util import eprint
@@ -99,6 +100,29 @@ The most commonly used commands are:
 
         with open("feats.test", "w") as f:
             create_feats(f, test_tweets, featdic, filter_missing=True)
+
+    def eval(self, args):
+        parser = argparse.ArgumentParser(
+            description='generate eval txt files')
+
+        parser.add_argument('feats', help="the feats.test file")
+        parser.add_argument('pred', help="the pred.out file")
+        parser.add_argument('eval', help="the eval.txt file")
+
+        args = parser.parse_args(args)
+
+        if not os.path.isfile(args.feats):
+            eprint("{} is missing".format(args.feats))
+        elif not os.path.isfile(args.pred):
+            eprint("{} is missing".format(args.pred))
+
+
+        with open(args.feats, "r") as f:
+            tweet_feats = read_feats(f)
+
+        with open(args.pred, "r") as f:
+            preds = read_preds(f)
+        pprint(preds)
 
 
 def strip_alpha(word, hashtags=None):
