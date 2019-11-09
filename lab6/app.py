@@ -89,7 +89,7 @@ The most commonly used commands are:
         if args.refresh_dic or not os.path.isfile("feats.dic"):
             eprint("Creating feats.dic...")
             with open("feats.dic", "w") as f:
-                featdic = create_feats_dic(f, tweets)
+                featdic = create_feats_dic(f, train_tweets)
         else:
             with open("feats.dic", "r") as f:
                 featdic = read_feats_dic(f)
