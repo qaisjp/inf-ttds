@@ -2,9 +2,6 @@
 *.xml.index
 
 # cw2
-feats.dic
-feats.train
-feats.test
 /svm
 model
 
