@@ -41,18 +41,19 @@ The most commonly used commands are:
         columns = ["", "P@10", "R@50", "r-Precision", "AP", "nDCG@10", "nDCG@20"]
 
         orig_stdout = sys.stdout
-        for num in range(1, 6 + 1):
+        max_s = 6
+        averages = defaultdict(list)
+        for num in range(1, max_s + 1):
             fname = "S" + str(num)
-            outfile = open(fname + ".eval", "w")
-            sys.stdout = outfile
-
-            for col in columns:
-                if col != "":
-                    print("\t" + col, end="")
-            print()
             with open(fname + ".results", "r") as f:
                 retrieved = read_results(f)
                 assert len(retrieved) == len(relevant)
+
+            outfile = open(fname + ".eval", "w")
+            sys.stdout = outfile
+
+            print("\t".join(columns))
+
             total = defaultdict(float)
             for q in retrieved.keys():
                 scores = get_scores(retrieved[q], relevant[q])
@@ -69,13 +70,24 @@ The most commonly used commands are:
             for col in columns:
                 if col == "":
                     print("mean", end="")
+                    averages[fname].append(fname)
                 else:
                     score = total[col] / len(retrieved)
-                    print("\t{0:.2f}".format(score), end="")
+                    score_str = "{0:.2f}".format(score)
+                    averages[fname].append(score_str)
+                    print("\t" + score_str, end="")
             print()
             outfile.close()
-        sys.stdout = orig_stdout
 
+        with open("All.eval", "w") as f:
+            sys.stdout = f
+            print("\t".join(columns))
+
+            for num in range(1, max_s + 1):
+                key = "S" + str(num)
+                print("\t".join(averages[key]))
+
+        sys.stdout = orig_stdout
 
 def precision_at_k(retrieved, relevant, k):
     retrieved_docids = list(map(lambda d: d["doc_number"], retrieved))
