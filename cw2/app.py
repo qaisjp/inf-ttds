@@ -35,40 +35,46 @@ The most commonly used commands are:
 
         args = parser.parse_args(args)
 
-        with open("S1.results", "r") as f:
-            retrieved = read_results(f)
         with open("qrels.txt") as f:
             relevant = read_relevant(f)
 
-        assert len(retrieved) == len(relevant)
-
-        means = defaultdict(float)
         columns = ["", "P@10", "R@50", "r-Precision", "AP", "nDCG@10", "nDCG@20"]
-        for col in columns:
-            if col != "":
-                print("\t" + col, end="")
-        print()
 
-        for q in retrieved.keys():
-            scores = get_scores(retrieved[q], relevant[q])
-            # eprint("scores for", q, "is", scores)
+        orig_stdout = sys.stdout
+        for num in range(1, 6 + 1):
+            fname = "S" + str(num)
+            outfile = open(fname + ".eval", "w")
+            sys.stdout = outfile
+
+            for col in columns:
+                if col != "":
+                    print("\t" + col, end="")
+            print()
+            with open(fname + ".results", "r") as f:
+                retrieved = read_results(f)
+                assert len(retrieved) == len(relevant)
+            total = defaultdict(float)
+            for q in retrieved.keys():
+                scores = get_scores(retrieved[q], relevant[q])
+                # eprint("scores for", q, "is", scores)
+                for col in columns:
+                    if col == "":
+                        print(q, end="")
+                    else:
+                        score = scores[col]
+                        total[col] += score
+                        print("\t{0:.2f}".format(score), end="")
+                print()
+
             for col in columns:
                 if col == "":
-                    print(q, end="")
+                    print("mean", end="")
                 else:
-                    score = scores[col]
-                    means[col] += score
+                    score = total[col] / len(retrieved)
                     print("\t{0:.2f}".format(score), end="")
             print()
-
-        for col in columns:
-            if col == "":
-                print("mean", end="")
-            else:
-                score = means[col] / len(retrieved)
-                print("\t{0:.2f}".format(score), end="")
-        print()
-
+            outfile.close()
+        sys.stdout = orig_stdout
 
 
 def precision_at_k(retrieved, relevant, k):
