@@ -38,6 +38,17 @@ The most commonly used commands are:
         with open("qrels.txt") as f:
             relevant = read_relevant(f)
 
+        print("precision for", 1, "is", precision(1, retrieved[1], relevant[1]))
+
+def precision(q, retrieved, relevant):
+    retrieved_docids = set(map(lambda d: d["doc_number"], retrieved))
+    relevant_docids = set(map(lambda t: t[0], relevant))
+    intersection = retrieved_docids.intersection(relevant_docids)
+    # print(retrieved_docids)
+    # print(relevant_docids)
+    # print(intersection)
+
+    return len(intersection) / len(retrieved)
 
 
 
