@@ -2,7 +2,7 @@ import argparse
 import os.path
 import sys
 
-from results import read_results, read_relevants
+from results import read_results, read_relevant
 
 class TTDS():
     def __init__(self):
@@ -34,9 +34,9 @@ The most commonly used commands are:
         args = parser.parse_args(args)
 
         with open("S1.results", "r") as f:
-            print(read_results(f))
+            retrieved = read_results(f)
         with open("qrels.txt") as f:
-            print(read_relevants(f))
+            relevant = read_relevant(f)
 
 
 
