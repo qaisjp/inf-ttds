@@ -38,17 +38,57 @@ The most commonly used commands are:
         with open("qrels.txt") as f:
             relevant = read_relevant(f)
 
-        print("precision for", 1, "is", precision(1, retrieved[1], relevant[1]))
+        assert len(retrieved) == len(relevant)
 
-def precision(q, retrieved, relevant):
-    retrieved_docids = set(map(lambda d: d["doc_number"], retrieved))
-    relevant_docids = set(map(lambda t: t[0], relevant))
-    intersection = retrieved_docids.intersection(relevant_docids)
-    # print(retrieved_docids)
-    # print(relevant_docids)
-    # print(intersection)
+        MAP = 0
+        for q in retrieved.keys():
+            scores = get_scores(retrieved[q], relevant[q])
+            print("scores for", q, "is", scores)
+            MAP += scores["ap"]
+        MAP = MAP / len(retrieved)
+        print("MAP", MAP)
 
-    return len(intersection) / len(retrieved)
+
+def precision_at_k(retrieved, relevant, k):
+    retrieved_docids = list(map(lambda d: d["doc_number"], retrieved))
+    relevant_docids = list(map(lambda t: t[0], relevant))
+
+    intersection_k = set(retrieved_docids[:k]).intersection(set(relevant_docids))
+    precision = len(intersection_k) / len(retrieved)
+    return precision
+
+def average_precision(retrieved, relevant):
+    retrieved_docids = list(map(lambda d: d["doc_number"], retrieved))
+    relevant_docids = list(map(lambda t: t[0], relevant))
+
+    ps = 0
+    for d in retrieved:
+        docnum = d["doc_number"]
+        rank = d["doc_rank"]
+        if docnum in relevant_docids:
+            ps += precision_at_k(retrieved, relevant, rank)
+    return ps / len(relevant_docids)
+
+
+def get_scores(retrieved, relevant):
+    retrieved_docids = list(map(lambda d: d["doc_number"], retrieved))
+    relevant_docids = list(map(lambda t: t[0], relevant))
+
+    precision_10 = precision_at_k(retrieved, relevant, 10)
+    precision_r = precision_at_k(retrieved, relevant, len(relevant))
+
+    intersection_50 = set(retrieved_docids[:50]).intersection(set(relevant_docids))
+    recall = len(intersection_50) / len(relevant)
+
+    ap = average_precision(retrieved, relevant)
+
+    return {
+        "P@10": precision_10,
+        "R@50": recall,
+        # "f1": (2 * precision * recall) / (precision + recall)
+        "r-precision": precision_r,
+        "ap": ap,
+    }
 
 
 
