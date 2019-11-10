@@ -2,7 +2,9 @@ import argparse
 import os.path
 import sys
 
+from collections import defaultdict
 from results import read_results, read_relevant
+from util import eprint
 
 class TTDS():
     def __init__(self):
@@ -40,13 +42,33 @@ The most commonly used commands are:
 
         assert len(retrieved) == len(relevant)
 
-        MAP = 0
+        means = defaultdict(float)
+        columns = ["", "P@10", "R@50", "r-Precision", "AP", "nDCG@10", "nDCG@20"]
+        for col in columns:
+            if col != "":
+                print("\t" + col, end="")
+        print()
+
         for q in retrieved.keys():
             scores = get_scores(retrieved[q], relevant[q])
-            print("scores for", q, "is", scores)
-            MAP += scores["ap"]
-        MAP = MAP / len(retrieved)
-        print("MAP", MAP)
+            # eprint("scores for", q, "is", scores)
+            for col in columns:
+                if col == "":
+                    print(q, end="")
+                else:
+                    score = scores[col]
+                    means[col] += score
+                    print("\t{0:.2f}".format(score), end="")
+            print()
+
+        for col in columns:
+            if col == "":
+                print("mean", end="")
+            else:
+                score = means[col] / len(retrieved)
+                print("\t{0:.2f}".format(score), end="")
+        print()
+
 
 
 def precision_at_k(retrieved, relevant, k):
@@ -86,8 +108,10 @@ def get_scores(retrieved, relevant):
         "P@10": precision_10,
         "R@50": recall,
         # "f1": (2 * precision * recall) / (precision + recall)
-        "r-precision": precision_r,
-        "ap": ap,
+        "r-Precision": precision_r,
+        "AP": ap,
+        "nDCG@10": 1,
+        "nDCG@20": 1
     }
 
 
