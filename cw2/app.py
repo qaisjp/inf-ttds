@@ -64,7 +64,7 @@ The most commonly used commands are:
                     else:
                         score = scores[col]
                         total[col] += score
-                        print("\t{0:.2f}".format(score), end="")
+                        print("\t{0:.3f}".format(score), end="")
                 print()
 
             for col in columns:
@@ -73,7 +73,7 @@ The most commonly used commands are:
                     averages[fname].append(fname)
                 else:
                     score = total[col] / len(retrieved)
-                    score_str = "{0:.2f}".format(score)
+                    score_str = "{0:.3f}".format(score)
                     averages[fname].append(score_str)
                     print("\t" + score_str, end="")
             print()
