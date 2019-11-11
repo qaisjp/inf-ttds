@@ -94,7 +94,7 @@ def precision_at_k(retrieved, relevant, k):
     relevant_docids = list(map(lambda t: t[0], relevant))
 
     intersection_k = set(retrieved_docids[:k]).intersection(set(relevant_docids))
-    precision = len(intersection_k) / len(retrieved)
+    precision = len(intersection_k) / len(retrieved[:k])
     return precision
 
 def average_precision(retrieved, relevant):
