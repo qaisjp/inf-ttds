@@ -3,6 +3,7 @@ import os.path
 import sys
 
 from collections import defaultdict
+from math import log2
 from results import read_results, read_relevant
 from util import eprint
 
@@ -109,6 +110,22 @@ def average_precision(retrieved, relevant):
             ps += precision_at_k(retrieved, relevant, rank)
     return ps / len(relevant_docids)
 
+def ndcg_at_k(retrieved, relevant, k):
+    dcg_k = relevant[0][1]
+    for i, t in enumerate(relevant[1:k]):
+        dcg_k += t[1] / log2(i + 2)
+
+    # Alternate way to generate dcg_k
+    # adcg_k = relevant[0][1]
+    # for i in range(1, k):
+    #     if i >= len(relevant):
+    #         break
+    #     adcg_k += relevant[i][1] / log2(i+1)
+    # assert dcg_k == adcg_k
+
+    # TODO: ncdg_k
+    ncdg_k = dcg_k
+    return ncdg_k
 
 def get_scores(retrieved, relevant):
     retrieved_docids = list(map(lambda d: d["doc_number"], retrieved))
@@ -128,8 +145,8 @@ def get_scores(retrieved, relevant):
         # "f1": (2 * precision * recall) / (precision + recall)
         "r-Precision": precision_r,
         "AP": ap,
-        "nDCG@10": 1,
-        "nDCG@20": 1
+        "nDCG@10": ndcg_at_k(retrieved, relevant, 10),
+        "nDCG@20": ndcg_at_k(retrieved, relevant, 20)
     }
 
 
