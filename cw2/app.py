@@ -111,20 +111,32 @@ def average_precision(retrieved, relevant):
     return ps / len(relevant_docids)
 
 def ndcg_at_k(retrieved, relevant, k):
-    dcg_k = relevant[0][1]
-    for i, t in enumerate(relevant[1:k]):
-        dcg_k += t[1] / log2(i + 2)
+    relevances = dict(relevant)
 
-    # Alternate way to generate dcg_k
-    # adcg_k = relevant[0][1]
-    # for i in range(1, k):
-    #     if i >= len(relevant):
-    #         break
-    #     adcg_k += relevant[i][1] / log2(i+1)
-    # assert dcg_k == adcg_k
+    # each item in relevant is a tuple (docnum, relevance)
+    # relevant = sorted(relevant, key=lambda x: x[1], reverse=True)
+    idcg_k = relevant[0][1]
+    for i, t in enumerate(relevant[:k]):
+        if i == 0:
+            continue
+        idcg_k += t[1] / log2(i + 1)
 
-    # TODO: ncdg_k
-    ncdg_k = dcg_k
+    relevant_ids = list(map(lambda x: x[0], relevant))
+
+    # each item in retrieved is a dict {"doc_number": x, "doc_rank": y, "score": z}
+    retrieved = sorted(retrieved, key=lambda x: x["doc_rank"])
+
+    dcg_k = 0
+    for i, t in enumerate(retrieved[:k]):
+        docnum = t["doc_number"]
+        if docnum not in relevant_ids:
+            continue
+        if i == 0:
+            dcg_k += relevances[docnum]
+        else:
+            dcg_k += relevances[docnum] / log2(i + 1)
+
+    ncdg_k = dcg_k / idcg_k
     return ncdg_k
 
 def get_scores(retrieved, relevant):
