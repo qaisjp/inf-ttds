@@ -137,14 +137,21 @@ def strip_alpha(word, hashtags=None):
     return word
 
 from urllib.parse import urlparse
+# from unshortenit import UnshortenIt
+# unshortener = UnshortenIt()
 def strip_urls(text, urls=None):
     if not text.startswith("https://") and not text.startswith("http://"):
         return True
-    if urls is not None:
-        try:
-            urls.append(urlparse(text))
-        except ValueError:
-            pass
+    # # print(text)
+    # # text = unshortener.unshorten(text)
+    # # print(text)
+    # # print()
+    # if urls is not None:
+    #     try:
+    #         urls.append(urlparse(text))
+    #     except ValueError as e:
+    #         print(e)
+    #         pass
     return False
 
 def extract_bow(f):
@@ -169,7 +176,6 @@ def extract_bow(f):
         # Apply some simple preprocessing to the whole text
         text = parts[1].strip()
 
-        text = text.lower()
 
         # Split by contiguous whitespace
         tokens = text.split()
@@ -178,7 +184,11 @@ def extract_bow(f):
         urls = []
         tokens = filter(functools.partial(strip_urls, urls=urls), tokens)
 
+        # for url in urls:
+        #     tokens.append(url.netloc)
+        #     print(url.netloc)
 
+        tokens = map(lambda t: t.lower(), tokens)
 
         # Strip non-alphabetic characters from all tokens (except for words with leading pound signs)
         hashtags = []
