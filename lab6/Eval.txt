@@ -1,4 +1,4 @@
-Accuracy = -1.000 todo
+Accuracy = 0.605
 Macro-F1 = 0.585
 Results per class:
 1: P=0.6571428571428571 R=0.9019607843137255 F=0.7603305785123967

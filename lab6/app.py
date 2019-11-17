@@ -183,7 +183,7 @@ from collections import defaultdict
 # from sklearn.metrics import f1_score
 
 def create_eval(f, tweet_feats, preds):
-    accuracy = -1
+    accuracy = 0
     macro_f1 = 0
 
     assert len(tweet_feats) == len(preds)
@@ -205,9 +205,12 @@ def create_eval(f, tweet_feats, preds):
         assert real_class >= 1
         assert real_class <= 14
 
-        # if pred_class == real_class:
+        if pred_class == real_class:
+            accuracy += 1
         retrieved[pred_class].append(doc_id)
         relevant[real_class].append(doc_id)
+
+    accuracy /= len(tweet_feats)
 
     for c_id in range(1, 14 + 1):
         rels = relevant[c_id]
@@ -239,7 +242,7 @@ def create_eval(f, tweet_feats, preds):
     macro_f1 = macro_f1 / 14
 
 
-    f.write("Accuracy = {0:.3f} todo\n".format(accuracy))
+    f.write("Accuracy = {0:.3f}\n".format(accuracy))
     f.write("Macro-F1 = {0:.3f}\n".format(macro_f1))
     f.write("Results per class:\n")
 
