@@ -4,7 +4,7 @@ import os.path
 import sys
 
 from feats import create_feats_dic, read_feats_dic, read_feats, create_feats
-from pred import read_preds
+from pred import read_preds, Prediction
 
 from pprint import pprint, pformat
 from util import eprint
@@ -122,7 +122,9 @@ The most commonly used commands are:
 
         with open(args.pred, "r") as f:
             preds = read_preds(f)
-        pprint(preds)
+
+        with open(args.eval, "w") as f:
+            create_eval(f, tweet_feats, preds)
 
 
 def strip_alpha(word, hashtags=None):
@@ -167,13 +169,86 @@ def extract_bow(f):
 
         # Strip non-alphabetic characters from all tokens (except for words with leading pound signs)
         hashtags = []
-        tokens = map(functools.partial(strip_alpha, hashtags=hashtags), tokens)
+        # tokens = map(functools.partial(strip_alpha, hashtags=hashtags), tokens)
         tokens = filter(lambda word: word != "", tokens)
 
         line['tokens'] = list(tokens)
         line['hashtags'] = hashtags
         lines.append(line)
     return lines
+
+from collections import defaultdict
+# from sklearn.metrics import f1_score
+
+def create_eval(f, tweet_feats, preds):
+    accuracy = -1
+    macro_f1 = 0
+
+    assert len(tweet_feats) == len(preds)
+
+    # maps from class to doc numbers
+    relevant = defaultdict(list)
+    retrieved = defaultdict(list)
+    metrics = []
+
+    for i, real in enumerate(tweet_feats):
+        pred = preds[i]
+        # print("pred", pred, "real", real)
+        pred_class = pred.class_id
+        real_class = real['class']
+        doc_id = real['id']
+
+        assert pred_class >= 1
+        assert pred_class <= 14
+        assert real_class >= 1
+        assert real_class <= 14
+
+        # if pred_class == real_class:
+        retrieved[pred_class].append(doc_id)
+        relevant[real_class].append(doc_id)
+
+    for c_id in range(1, 14 + 1):
+        rels = relevant[c_id]
+        retr = retrieved[c_id]
+
+        inters = set(retr).intersection(set(rels))
+        precision = len(inters) / len(retr)
+        recall = len(inters) / len(rels)
+        f1 = (2 * precision * recall) / (precision + recall)
+
+        print(c_id)
+        print("rels:", len(rels), rels)
+        print("retr: ", len(retr), retr)
+        print("inters", len(inters), list(inters))
+        print()
+
+
+        # sk_f1 = f1_score(rels, retr)
+        # print("ours", f1, "theirs", sk_f1)
+
+        macro_f1 += f1
+
+        metrics.append({
+            "precision": precision,
+            "recall": recall,
+            "f1": f1
+        })
+
+    macro_f1 = macro_f1 / 14
+
+
+    f.write("Accuracy = {0:.3f} todo\n".format(accuracy))
+    f.write("Macro-F1 = {0:.3f}\n".format(macro_f1))
+    f.write("Results per class:\n")
+
+    for i, metric in enumerate(metrics):
+        precision = metric['precision']
+        recall = metric['recall']
+        f1 = metric['f1']
+
+        f.write("{}: P={} R={} F={}\n".format(i + 1, precision, recall, f1))
+
+
 
 if __name__ == "__main__":
     TTDS()
