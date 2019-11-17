@@ -130,13 +130,10 @@ The most commonly used commands are:
 def strip_alpha(word, hashtags=None):
     hashtag = False
     if word.startswith("#"):
+        hashtags.append(word)
         hashtag = True
-        word = word[1:]
 
     word = "".join(map(lambda l: l.isalpha() and l or "", word))
-
-    if hashtags and hashtag:
-        hashtags.append(word)
     return word
 
 def extract_bow(f):
@@ -161,7 +158,7 @@ def extract_bow(f):
         # Apply some simple preprocessing to the whole text
         text = parts[1].strip()
 
-        # text = text.lower()
+        text = text.lower()
 
         # Split by contiguous whitespace
         tokens = text.split()
@@ -171,10 +168,13 @@ def extract_bow(f):
 
         # Strip non-alphabetic characters from all tokens (except for words with leading pound signs)
         hashtags = []
-        # tokens = map(functools.partial(strip_alpha, hashtags=hashtags), tokens)
+        tokens = map(functools.partial(strip_alpha, hashtags=hashtags), tokens)
         tokens = filter(lambda word: word != "", tokens)
+        tokens = list(tokens)
+        # print(hashtags)
+        tokens.extend(hashtags)
 
-        line['tokens'] = list(tokens)
+        line['tokens'] = tokens
         line['hashtags'] = hashtags
         lines.append(line)
     return lines
@@ -221,11 +221,11 @@ def create_eval(f, tweet_feats, preds):
         recall = len(inters) / len(rels)
         f1 = (2 * precision * recall) / (precision + recall)
 
-        print(c_id)
-        print("rels:", len(rels), rels)
-        print("retr: ", len(retr), retr)
-        print("inters", len(inters), list(inters))
-        print()
+        #print(c_id)
+        #print("rels:", len(rels), rels)
+        ##print("retr: ", len(retr), retr)
+        ##print("inters", len(inters), list(inters))
+        #print()
 
 
         # sk_f1 = f1_score(rels, retr)
