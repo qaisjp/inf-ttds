@@ -136,6 +136,17 @@ def strip_alpha(word, hashtags=None):
     word = "".join(map(lambda l: l.isalpha() and l or "", word))
     return word
 
+from urllib.parse import urlparse
+def strip_urls(text, urls=None):
+    if not text.startswith("https://") and not text.startswith("http://"):
+        return True
+    if urls is not None:
+        try:
+            urls.append(urlparse(text))
+        except ValueError:
+            pass
+    return False
+
 def extract_bow(f):
     lines = []
     for line in f:
@@ -164,7 +175,10 @@ def extract_bow(f):
         tokens = text.split()
 
         # Filter tokens that start with http or https (NOTE: could also exclude ftp urls or other URI schema in the future)
-        tokens = filter(lambda text: not text.startswith("https://") and not text.startswith("http://") , tokens)
+        urls = []
+        tokens = filter(functools.partial(strip_urls, urls=urls), tokens)
+
+
 
         # Strip non-alphabetic characters from all tokens (except for words with leading pound signs)
         hashtags = []
