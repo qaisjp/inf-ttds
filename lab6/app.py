@@ -172,7 +172,7 @@ def extract_bow(f):
         # Strip non-alphabetic characters from all tokens (except for words with leading pound signs)
         hashtags = []
         # tokens = map(functools.partial(strip_alpha, hashtags=hashtags), tokens)
-        # tokens = filter(lambda word: word != "", tokens)
+        tokens = filter(lambda word: word != "", tokens)
 
         line['tokens'] = list(tokens)
         line['hashtags'] = hashtags
