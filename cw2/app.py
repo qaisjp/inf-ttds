@@ -14,7 +14,7 @@ class TTDS():
             usage='''app.py <command> [<args>]
 
 The most commonly used commands are:
-    parse   Parse dem files
+    parse   Parse files
 ''')
 
         parser.add_argument('command', help='Subcommand to run')
@@ -29,7 +29,7 @@ The most commonly used commands are:
 
     def parse(self, args):
         parser = argparse.ArgumentParser(
-            description='parse dem files')
+            description='parse files')
 
         # parser.add_argument('tweetfile', help="prefix file to use")
         # parser.add_argument('--refresh-dic', action='store_true')
